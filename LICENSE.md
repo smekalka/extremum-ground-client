@@ -15,12 +15,12 @@ The Business Source License (this document, or the “License) is not an Open So
 
 ## Parameters
 
-Parameter | Definition |
---- | --- |
-Licensor | Smekalka Ltd (LEI# [5493003R1FS8Y8YYFF96](https://opencorpdata.com/lei/5493003R1FS8Y8YYFF96))|
-Licensed Work | extremum.tools 3.0<br>The Licensed Work is © 2023 Smekalka Ltd. |
-Change Date | April 1st, 2026 |
-Change License | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) |
+| Parameter      | Definition                                                                                    |
+|----------------|-----------------------------------------------------------------------------------------------|
+| Licensor       | Smekalka Ltd (LEI# [5493003R1FS8Y8YYFF96](https://opencorpdata.com/lei/5493003R1FS8Y8YYFF96)) |
+| Licensed Work  | extremum.tools 3.0<br>The Licensed Work is © 2023 Smekalka Ltd.                               |
+| Change Date    | April 1st, 2026                                                                               |
+| Change License | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)                             |
 
 ### Additional Use Grant
 

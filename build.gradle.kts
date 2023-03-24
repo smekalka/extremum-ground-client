@@ -6,16 +6,17 @@ plugins {
     kotlin("plugin.spring") version "1.6.21"
     java
     `maven-publish`
+    signing
 }
 
-val artifactVersion = "0.0.1"
+val artifactVersion = "3.0.0"
 val artifact = "ground-client"
 val extremumGroup = "io.extremum"
-val releasesRepoUrl = "https://artifactory.extremum.monster/artifactory/extremum-releases/"
-val snapshotsRepoUrl = "https://artifactory.extremum.monster/artifactory/extremum-snapshots/"
+val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
 val springBootVersion = "3.0.1"
-val extremumToolsVersion = "0.0.4"
+val extremumToolsVersion = "3.0.0"
 
 group = extremumGroup
 version = artifactVersion
@@ -24,25 +25,8 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-        url = uri(snapshotsRepoUrl)
-        credentials {
-            username = System.getenv("ARTIFACTORY_USER")
-            password = System.getenv("ARTIFACTORY_PASSWORD")
-        }
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
-
-    maven {
-        url = uri(releasesRepoUrl)
-        credentials {
-            username = System.getenv("ARTIFACTORY_USER")
-            password = System.getenv("ARTIFACTORY_PASSWORD")
-        }
-    }
 }
+
 configurations {
     all {
         exclude(module = "logback-classic")
@@ -50,7 +34,7 @@ configurations {
 }
 
 dependencies {
-    implementation("io.extremum:extremum-shared-models:2.1.17-SNAPSHOT") {
+    implementation("io.extremum:extremum-shared-models:3.0.0") {
         exclude("io.extremum", "extremum-mongo-db-factory-reactive")
         exclude("io.extremum", "extremum-mongo-db-factory-sync")
     }
@@ -94,9 +78,9 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
-    classifier = "sources"
-    from(sourceSets.main.get().allSource)
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -107,19 +91,53 @@ publishing {
             version = artifactVersion
 
             from(components["java"])
-        }
 
-        repositories {
-            maven {
-                val isReleaseVersion = !(version as String).endsWith("-SNAPSHOT")
-                url = uri(if (isReleaseVersion) releasesRepoUrl else snapshotsRepoUrl)
-                credentials {
-                    username = System.getenv("ARTIFACTORY_USER")
-                    password = System.getenv("ARTIFACTORY_PASSWORD")
+            pom {
+                name.set("ground-client")
+                description.set("Client for Ground api")
+                url.set("https://github.com/smekalka/extremum-ground-client")
+                inceptionYear.set("2022")
+
+                scm {
+                    url.set("https://github.com/smekalka/extremum-ground-client")
+                    connection.set("scm:https://github.com/smekalka/extremum-ground-client.git")
+                    developerConnection.set("scm:git://github.com/smekalka/extremum-ground-client.git")
+                }
+
+                licenses {
+                    license {
+                        name.set("Business Source License 1.1")
+                        url.set("https://github.com/smekalka/extremum-ground-client/blob/develop/LICENSE.md")
+                        distribution.set("repo")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("SherbakovaMA")
+                        name.set("Maria Sherbakova")
+                        email.set("m.sherbakova@smekalka.com")
+                    }
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            val isReleaseVersion = !(version as String).endsWith("-SNAPSHOT")
+            url = uri(if (isReleaseVersion) releasesRepoUrl else snapshotsRepoUrl)
+            credentials {
+                username = System.getProperty("ossrhUsername")
+                password = System.getProperty("ossrhPassword")
+            }
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["maven"])
 }
 
 tasks.withType<GenerateModuleMetadata> {
@@ -129,4 +147,10 @@ tasks.withType<GenerateModuleMetadata> {
 tasks.jar {
     enabled = true
     archiveClassifier.set("")
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
 }

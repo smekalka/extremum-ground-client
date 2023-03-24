@@ -5,6 +5,8 @@ build/
 !**/src/test/**/build/
 cache/
 
+gradle.properties
+
 ### STS ###
 .apt_generated
 .classpath
