@@ -11,18 +11,18 @@ import org.junit.jupiter.api.Test
 
 class ValueGraphQlFormatterTest {
 
-    private val event = _root_ide_package_.io.extremum.ground.client.model.Event().apply {
+    private val event = Event().apply {
         url = "event url"
         size = 23
-        product = _root_ide_package_.io.extremum.ground.client.model.Product().apply {
+        product = Product().apply {
             name = "bottle".toStringOrMultilingual()
             rating = 8.3
         }
         experiences = listOf(
-            _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+            Experience().apply {
                 mime = "mime1"
             },
-            _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+            Experience().apply {
                 mime = "mime2"
             }
         ).toGraphQlList()

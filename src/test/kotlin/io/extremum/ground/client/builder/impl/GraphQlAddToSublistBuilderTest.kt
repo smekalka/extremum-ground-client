@@ -3,6 +3,9 @@ package io.extremum.ground.client.builder.impl
 import io.extremum.ground.client.builder.Builders.addToSublist
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
 import io.extremum.ground.client.builder.core.setOutputFields
+import io.extremum.ground.client.model.Account
+import io.extremum.ground.client.model.Change
+import io.extremum.ground.client.model.Compensation
 import io.extremum.sharedmodels.basic.StringOrObject
 import io.extremum.test.tools.StringUtils.assertEqual
 import io.extremum.test.tools.StringUtils.wrapWithQuery
@@ -55,10 +58,10 @@ mutation {
 
         val result = addToSublist(
             id = uuid,
-            sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
-            entityToAdd = _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+            sublistFieldGetter = Account::getChanges,
+            entityToAdd = Change().apply {
                 ordinal = 23.0
-                compensation = _root_ide_package_.io.extremum.ground.client.model.Compensation().apply {
+                compensation = Compensation().apply {
                     function = "function name"
                     parameters = StringOrObject(
                         CustomProperties(
@@ -70,12 +73,12 @@ mutation {
             }
         )
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Change::getUuid),
-                field(_root_ide_package_.io.extremum.ground.client.model.Change::getOrdinal),
+                field(Change::getUuid),
+                field(Change::getOrdinal),
                 field(
-                    _root_ide_package_.io.extremum.ground.client.model.Change::getCompensation,
-                    _root_ide_package_.io.extremum.ground.client.model.Compensation::getFunction,
-                    _root_ide_package_.io.extremum.ground.client.model.Compensation::getParameters,
+                    Change::getCompensation,
+                    Compensation::getFunction,
+                    Compensation::getParameters,
                 ),
             )
             .build("account")

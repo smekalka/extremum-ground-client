@@ -4,6 +4,13 @@ import io.extremum.ground.client.builder.Builders.update
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
 import io.extremum.ground.client.builder.core.setAllOutputFields
 import io.extremum.ground.client.builder.core.setOutputFields
+import io.extremum.ground.client.model.Account
+import io.extremum.ground.client.model.Change
+import io.extremum.ground.client.model.Compensation
+import io.extremum.ground.client.model.Event
+import io.extremum.ground.client.model.Experience
+import io.extremum.ground.client.model.Product
+import io.extremum.ground.client.model.Zone
 import io.extremum.model.tools.mapper.GraphQlListUtils.toGraphQlList
 import io.extremum.model.tools.mapper.MapperUtils.copy
 import io.extremum.sharedmodels.basic.BasicModel
@@ -37,7 +44,7 @@ mutation {
         )
 
         val result = update()
-            .setInput(_root_ide_package_.io.extremum.ground.client.model.Zone().apply { this.description = description.toStringOrMultilingual() })
+            .setInput(Zone().apply { this.description = description.toStringOrMultilingual() })
             .build("zone")
 
         assertEqual(result, exp)
@@ -68,15 +75,15 @@ mutation {
 
         val result = update()
             .setInput(
-                _root_ide_package_.io.extremum.ground.client.model.Zone().apply {
+                Zone().apply {
                     this.description = description.toStringOrMultilingual()
                     this.size = size
                     this.created = created
                 }
             )
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getSize),
+                field(Zone::getDescription),
+                field(Zone::getSize),
             )
             .build("zone")
 
@@ -130,18 +137,18 @@ mutation {
         """
         )
 
-        val event = _root_ide_package_.io.extremum.ground.client.model.Event().apply {
+        val event = Event().apply {
             url = "event url"
             size = 23
-            product = _root_ide_package_.io.extremum.ground.client.model.Product().apply {
+            product = Product().apply {
                 name = "bottle".toStringOrMultilingual()
                 rating = 8.3
             }
             experiences = listOf(
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     mime = "mime1"
                 },
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     mime = "mime2"
                 },
             ).toGraphQlList()
@@ -150,12 +157,12 @@ mutation {
         val result = update()
             .setInput(event)
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Event::getUrl),
-                field(_root_ide_package_.io.extremum.ground.client.model.Event::getSize),
+                field(Event::getUrl),
+                field(Event::getSize),
                 field(
-                    _root_ide_package_.io.extremum.ground.client.model.Event::getProduct, field(_root_ide_package_.io.extremum.ground.client.model.Product::getName), field(
-                        _root_ide_package_.io.extremum.ground.client.model.Product::getRating)),
-                field(_root_ide_package_.io.extremum.ground.client.model.Event::getExperiences, field(_root_ide_package_.io.extremum.ground.client.model.Experience::getMime)),
+                    Event::getProduct, field(Product::getName), field(
+                        Product::getRating)),
+                field(Event::getExperiences, field(Experience::getMime)),
             )
             .build("event")
 
@@ -183,11 +190,11 @@ mutation {
 
         val result = update(uuid)
             .setInput(
-                entity = _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                entity = Account().apply {
                     this.value = value
                     this.uuid = Descriptor("333")
                 },
-                _root_ide_package_.io.extremum.ground.client.model.Account::getValue
+                Account::getValue
             )
             .build("account")
 
@@ -213,7 +220,7 @@ mutation {
         )
 
         val result = update(uuid)
-            .setInput(entity = _root_ide_package_.io.extremum.ground.client.model.Account().apply { this.uuid = "333".toDescriptor() }, _root_ide_package_.io.extremum.ground.client.model.Account::getValue)
+            .setInput(entity = Account().apply { this.uuid = "333".toDescriptor() }, Account::getValue)
             .build("account")
 
         assertEqual(result, exp)
@@ -245,11 +252,10 @@ mutation {
 
         val result = update(uuid)
             .setInput(
-                entity = _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+                entity = Change().apply {
                     this.uuid = "333".toDescriptor()
                     this.ordinal = ordinal
-                    compensation = _root_ide_package_.io.extremum.ground.client.model.Compensation()
-                        .apply { this.function = function }
+                    compensation = Compensation().apply { this.function = function }
                 }
             )
             .build("change")
@@ -276,9 +282,9 @@ mutation {
         )
 
         val result = update(uuid)
-            .setInput(entity = _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+            .setInput(entity = Account().apply {
                 this.uuid = "333".toDescriptor()
-                datatype = _root_ide_package_.io.extremum.ground.client.model.Account.AccountDatatype.NUMBER
+                datatype = Account.AccountDatatype.NUMBER
             })
             .build("account")
         assertEqual(result, exp)
@@ -310,26 +316,26 @@ mutation {
         """
         )
 
-        val event = _root_ide_package_.io.extremum.ground.client.model.Event().apply {
+        val event = Event().apply {
             url = "event url"
             size = 23
-            product = _root_ide_package_.io.extremum.ground.client.model.Product().apply {
+            product = Product().apply {
                 name = "bottle".toStringOrMultilingual()
                 rating = 8.3
             }
             experiences = listOf(
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     mime = "mime1"
                 },
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     mime = "mime2"
                 }
             ).toGraphQlList()
         }
 
         val result = update(uuid)
-            .setInput(event, _root_ide_package_.io.extremum.ground.client.model.Event::getUrl)
-            .setAllOutputFields(_root_ide_package_.io.extremum.ground.client.model.Event::class)
+            .setInput(event, Event::getUrl)
+            .setAllOutputFields(Event::class)
             .build("event")
 
         assertEqual(result, exp)
@@ -428,18 +434,18 @@ mutation {
 }
         """
         )
-        val event1 = _root_ide_package_.io.extremum.ground.client.model.Event().apply {
+        val event1 = Event().apply {
             url = "event url"
             size = 23
-            product = _root_ide_package_.io.extremum.ground.client.model.Product().apply {
+            product = Product().apply {
                 name = "bottle".toStringOrMultilingual()
                 rating = 8.3
             }
             experiences = listOf(
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     mime = "mime1"
                 },
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     mime = "mime2"
                 }
             ).toGraphQlList()
@@ -478,10 +484,10 @@ mutation {
 }
         """
         )
-        val event1 = _root_ide_package_.io.extremum.ground.client.model.Event().apply {
+        val event1 = Event().apply {
             size = 23
             experiences = listOf(
-                _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                Experience().apply {
                     this.uuid = uuidExperience
                 },
             ).toGraphQlList()

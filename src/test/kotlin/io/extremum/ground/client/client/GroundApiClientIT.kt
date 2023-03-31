@@ -16,7 +16,14 @@ import io.extremum.ground.client.builder.tx.inTx
 import io.extremum.ground.client.builder.util.StringUtils.classNameShort
 import io.extremum.ground.client.client.Response.Status.DATA_FETCHING_EXCEPTION
 import io.extremum.ground.client.client.Response.Status.TX_NOT_FOUND
+import io.extremum.ground.client.model.Account
 import io.extremum.ground.client.model.Account.AccountDatatype
+import io.extremum.ground.client.model.Change
+import io.extremum.ground.client.model.Compensation
+import io.extremum.ground.client.model.Event
+import io.extremum.ground.client.model.Experience
+import io.extremum.ground.client.model.Product
+import io.extremum.ground.client.model.Zone
 import io.extremum.model.tools.mapper.GraphQlListUtils.toGraphQlList
 import io.extremum.model.tools.mapper.GraphQlListUtils.toList
 import io.extremum.model.tools.mapper.MapperUtils.convertValue
@@ -46,14 +53,14 @@ class GroundApiClientIT {
     @Test
     fun `get zones`() {
         runBlocking {
-            groundApiClient.createEmpty<_root_ide_package_.io.extremum.ground.client.model.Zone>()
+            groundApiClient.createEmpty<Zone>()
             val builder = query()
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid)
+                    field(Zone::getDescription),
+                    field(Zone::getUuid)
                 )
 
-            val result = groundApiClient.query<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val result = groundApiClient.query<Zone>(builder)
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
@@ -66,11 +73,11 @@ class GroundApiClientIT {
     fun `find account by filter`() {
         runBlocking {
             val searchingValue = "searching"
-            groundApiClient.create(_root_ide_package_.io.extremum.ground.client.model.Compensation().apply {
+            groundApiClient.create(Compensation().apply {
                 function = searchingValue
             })
 
-            val result = groundApiClient.query<_root_ide_package_.io.extremum.ground.client.model.Compensation>(query(filter = "object.function.eq(\"$searchingValue\")"))
+            val result = groundApiClient.query<Compensation>(query(filter = "object.function.eq(\"$searchingValue\")"))
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
@@ -82,15 +89,15 @@ class GroundApiClientIT {
     @Test
     fun `get zone by id`() {
         runBlocking {
-            val zone = groundApiClient.createEmpty<_root_ide_package_.io.extremum.ground.client.model.Zone>()
+            val zone = groundApiClient.createEmpty<Zone>()
             val id = zone.uuid
             val builder = getById(id)
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid)
+                    field(Zone::getDescription),
+                    field(Zone::getUuid)
                 )
 
-            val result = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val result = groundApiClient.getById<Zone>(builder)
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
@@ -105,10 +112,10 @@ class GroundApiClientIT {
         runBlocking {
             val builder = getById(randomUuidStr())
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid)
+                    field(Zone::getUuid)
                 )
 
-            val (result, status) = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val (result, status) = groundApiClient.getById<Zone>(builder)
 
             println("result: $result")
             assertThat(status).isEqualTo(DATA_FETCHING_EXCEPTION)
@@ -126,12 +133,12 @@ class GroundApiClientIT {
 
             val id = createdAccount.uuid
 
-            val result = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Account>(id)
+            val result = groundApiClient.getById<Account>(id)
 
             println("result: $result")
             assertThat(result)
                 .isNotNullExt()
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Account::getValue, value)
+                .hasFieldWithValue(Account::getValue, value)
             assertEqualsDescriptors(id, result!!.uuid)
         }
     }
@@ -143,22 +150,22 @@ class GroundApiClientIT {
             val description = "description via client".toStringOrMultilingual()
             val builder = update()
                 .setInput(
-                    _root_ide_package_.io.extremum.ground.client.model.Zone().apply {
+                    Zone().apply {
                         this.description = description
                         created = ZonedDateTime.now()
                     }
                 )
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getCreated),
+                    field(Zone::getDescription),
+                    field(Zone::getCreated),
                 )
 
-            val result = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val result = groundApiClient.update<Zone>(builder)
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
             assertThat(result)
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription, description)
+                .hasFieldWithValue(Zone::getDescription, description)
             assertThat(result.created).isNotNull
         }
     }
@@ -169,13 +176,13 @@ class GroundApiClientIT {
         runBlocking {
             val participants = IntegerRangeOrValue(10, 20)
             val builder = update()
-                .setInput(_root_ide_package_.io.extremum.ground.client.model.Event().apply {
+                .setInput(Event().apply {
                     this.participants = participants
                 })
-                .addOutputFields(field(_root_ide_package_.io.extremum.ground.client.model.Event::getParticipants))
+                .addOutputFields(field(Event::getParticipants))
 
 
-            val result = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Event>(builder)
+            val result = groundApiClient.update<Event>(builder)
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
@@ -190,18 +197,18 @@ class GroundApiClientIT {
     @Test
     fun `create event with nested fields`() {
         runBlocking {
-            val event = _root_ide_package_.io.extremum.ground.client.model.Event().apply {
+            val event = Event().apply {
                 url = "event url"
                 size = 23
-                product = _root_ide_package_.io.extremum.ground.client.model.Product().apply {
+                product = Product().apply {
                     name = "bottle".toStringOrMultilingual()
                     rating = 8.3
                 }
                 experiences = listOf(
-                    _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                    Experience().apply {
                         mime = "mime1"
                     },
-                    _root_ide_package_.io.extremum.ground.client.model.Experience().apply {
+                    Experience().apply {
                         mime = "mime2"
                     }
                 ).toGraphQlList()
@@ -209,17 +216,17 @@ class GroundApiClientIT {
             val builder = update()
                 .setInput(event)
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Event::getUrl),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Event::getSize),
+                    field(Event::getUrl),
+                    field(Event::getSize),
                 )
 
-            val result = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Event>(builder)
+            val result = groundApiClient.update<Event>(builder)
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
             assertThat(result)
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Event::getUrl, event.url)
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Event::getSize, event.size)
+                .hasFieldWithValue(Event::getUrl, event.url)
+                .hasFieldWithValue(Event::getSize, event.size)
         }
     }
 
@@ -233,24 +240,24 @@ class GroundApiClientIT {
             println("result: $result")
             assertThat(result)
                 .isNotNullExt()
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Account::getValue, value)
+                .hasFieldWithValue(Account::getValue, value)
         }
     }
 
-    private suspend fun createAccount(value: String = "base value"): _root_ide_package_.io.extremum.ground.client.model.Account {
+    private suspend fun createAccount(value: String = "base value"): Account {
         val builder = update()
             .setInput(
-                _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                Account().apply {
                     datatype = AccountDatatype.STRING_ARRAY
                     this.value = value
                 }
             )
             .addOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Account::getDatatype),
-                field(_root_ide_package_.io.extremum.ground.client.model.Account::getValue),
+                field(Account::getDatatype),
+                field(Account::getValue),
             )
 
-        val response = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+        val response = groundApiClient.update<Account>(builder)
         return response.validateStatusAndValueNotNull("account")
     }
 
@@ -267,22 +274,22 @@ class GroundApiClientIT {
             val updatedValue = "updated value"
             val builder = update(id)
                 .setInput(
-                    _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                    Account().apply {
                         datatype = AccountDatatype.CUSTOM
                         this.value = updatedValue
                     }
                 )
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getDatatype),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getValue),
+                    field(Account::getDatatype),
+                    field(Account::getValue),
                 )
 
-            val result = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+            val result = groundApiClient.update<Account>(builder)
                 .validateStatusAndValueNotNull()
 
             println("result: $result")
             assertThat(result)
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Account::getValue, updatedValue)
+                .hasFieldWithValue(Account::getValue, updatedValue)
         }
     }
 
@@ -292,12 +299,12 @@ class GroundApiClientIT {
         runBlocking {
             val builder = update(randomUuidStr())
                 .setInput(
-                    _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                    Account().apply {
                         datatype = AccountDatatype.CUSTOM
                     }
                 )
 
-            val (result, status) = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+            val (result, status) = groundApiClient.update<Account>(builder)
 
             println("result: $result")
             assertThat(status).isEqualTo(DATA_FETCHING_EXCEPTION)
@@ -372,7 +379,7 @@ class GroundApiClientIT {
             val compensation = createdChange.compensation
             assertThat(compensation)
                 .isNotNullExt()
-                .hasFieldWithValue(_root_ide_package_.io.extremum.ground.client.model.Compensation::getFunction, function)
+                .hasFieldWithValue(Compensation::getFunction, function)
                 .hasFieldOrProperty("parameters")
             val savedParameters = compensation!!.parameters.`object`
             val savedCustomProperties = savedParameters.convertValue<CustomProperties>()
@@ -387,22 +394,22 @@ class GroundApiClientIT {
             param11 = "param11 value",
             param22 = "param22 value",
         )
-    ): List<_root_ide_package_.io.extremum.ground.client.model.Change> {
+    ): List<Change> {
         val builder = addToSublist(
             id = accountId,
-            sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
-            entityToAdd = _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+            sublistFieldGetter = Account::getChanges,
+            entityToAdd = Change().apply {
                 ordinal = 23.0
-                compensation = _root_ide_package_.io.extremum.ground.client.model.Compensation().apply {
+                compensation = Compensation().apply {
                     this.function = function
                     this.parameters = StringOrObject(parameters)
                 }
             }
         )
-            .setAllOutputFields(_root_ide_package_.io.extremum.ground.client.model.Change::class)
+            .setAllOutputFields(Change::class)
 
-        val response = groundApiClient.updateSublist<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Change>(builder)
-        return response.validateStatusAndValueNotNull(classNameShort<_root_ide_package_.io.extremum.ground.client.model.Change>())
+        val response = groundApiClient.updateSublist<Account, Change>(builder)
+        return response.validateStatusAndValueNotNull(classNameShort<Change>())
     }
 
     @Disabled("launched ground application is needed")
@@ -411,29 +418,29 @@ class GroundApiClientIT {
         runBlocking {
             val createdAccount = createAccount()
             val entitiesToAdd = listOf(
-                _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+                Change().apply {
                     ordinal = 1.1
                 },
-                _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+                Change().apply {
                     ordinal = 2.1
                 }
             )
-            val response = groundApiClient.updateSublist<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Change>(
+            val response = groundApiClient.updateSublist<Account, Change>(
                 addToSublist(
                     id = createdAccount.uuid,
-                    sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
+                    sublistFieldGetter = Account::getChanges,
                     entitiesToAdd = entitiesToAdd
                 )
             )
-            response.validateStatus(classNameShort<_root_ide_package_.io.extremum.ground.client.model.Change>())
+            response.validateStatus(classNameShort<Change>())
 
-            val getAccountResponse = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Account>(
+            val getAccountResponse = groundApiClient.getById<Account>(
                 getById(createdAccount.uuid)
                     .setOutputFields(field(
-                        _root_ide_package_.io.extremum.ground.client.model.Account::getChanges, field(
-                            _root_ide_package_.io.extremum.ground.client.model.Change::getOrdinal)))
+                        Account::getChanges, field(
+                            Change::getOrdinal)))
             )
-            val account = getAccountResponse.validateStatusAndValueNotNull(classNameShort<_root_ide_package_.io.extremum.ground.client.model.Account>())
+            val account = getAccountResponse.validateStatusAndValueNotNull(classNameShort<Account>())
             assertThat(account.changes).isNotNull
             val changes = account.changes.toList()
             assertThat(changes).hasSize(2)
@@ -462,13 +469,13 @@ class GroundApiClientIT {
             val getByIdBuilder = getById(id)
                 .setOutputFields(
                     field(
-                        _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
-                        field(_root_ide_package_.io.extremum.ground.client.model.Change::getCompensation, _root_ide_package_.io.extremum.ground.client.model.Compensation::getFunction),
-                        field(_root_ide_package_.io.extremum.ground.client.model.Change::getUuid)
+                        Account::getChanges,
+                        field(Change::getCompensation, Compensation::getFunction),
+                        field(Change::getUuid)
                     )
                 )
-            val getAccountResponse = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Account>(getByIdBuilder)
-            val result = getAccountResponse.validateStatusAndValueNotNull(classNameShort<_root_ide_package_.io.extremum.ground.client.model.Account>())
+            val getAccountResponse = groundApiClient.getById<Account>(getByIdBuilder)
+            val result = getAccountResponse.validateStatusAndValueNotNull(classNameShort<Account>())
             println("received account with changes: $result")
 
             val changes = result.changes.toList()
@@ -497,14 +504,14 @@ class GroundApiClientIT {
             // удаление из списка - проверяемое действие
             val builder = removeFromSublist(
                 id = id,
-                sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
+                sublistFieldGetter = Account::getChanges,
                 idToRemove = addedChangesId!!
             )
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Change::getUuid),
+                    field(Change::getUuid),
                 )
 
-            val result = groundApiClient.updateSublist<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Change>(builder)
+            val result = groundApiClient.updateSublist<Account, Change>(builder)
 
             println("result: $result")
             val resultNotNull = result.validateStatusAndValueNotNull()
@@ -518,11 +525,11 @@ class GroundApiClientIT {
     fun `begin tx`() {
         runBlocking {
             val txId = groundApiClient.beginTx().validateStatusAndTx("begin tx").txId
-            val zone = groundApiClient.createEmpty<_root_ide_package_.io.extremum.ground.client.model.Zone>(txId)
+            val zone = groundApiClient.createEmpty<Zone>(txId)
 
             groundApiClient.commit(txId)
 
-            val afterCommit = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Zone>(zone.uuid)
+            val afterCommit = groundApiClient.getById<Zone>(zone.uuid)
             assertThat(afterCommit).isNotNull
         }
     }
@@ -534,51 +541,51 @@ class GroundApiClientIT {
             // начало транзакции
             val builder = query()
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid)
+                    field(Zone::getDescription),
+                    field(Zone::getUuid)
                 )
                 .beginTx()
 
-            val beginTxResponse = groundApiClient.query<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val beginTxResponse = groundApiClient.query<Zone>(builder)
             val txId = beginTxResponse.validateStatusAndTx().txId
 
             // внутри транзакции: создание аккаунта
             val createBuilder = update()
                 .setInput(
-                    _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                    Account().apply {
                         datatype = AccountDatatype.STRING_ARRAY
                         value = "account value"
                     }
                 )
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getDatatype),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getValue),
+                    field(Account::getDatatype),
+                    field(Account::getValue),
                 )
                 .inTx(txId)
 
-            val createdAccountResponse = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Account>(createBuilder)
-            val createdAccount = createdAccountResponse.validateStatusAndValueNotNull(classNameShort<_root_ide_package_.io.extremum.ground.client.model.Account>())
+            val createdAccountResponse = groundApiClient.update<Account>(createBuilder)
+            val createdAccount = createdAccountResponse.validateStatusAndValueNotNull(classNameShort<Account>())
             val accountId = createdAccount.uuid
 
             // commit транзакции при добавлении changes в account
             val addToSublistBuilder = addToSublist(
                 id = accountId,
-                sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
-                entityToAdd = _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+                sublistFieldGetter = Account::getChanges,
+                entityToAdd = Change().apply {
                     ordinal = 23.0
                 }
             )
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Change::getUuid),
+                    field(Change::getUuid),
                 )
                 .commit(txId)
 
-            groundApiClient.updateSublist<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Change>(addToSublistBuilder)
+            groundApiClient.updateSublist<Account, Change>(addToSublistBuilder)
             // альтернатива commit-а без запроса
             // groundApiClient.commit(txId)
 
             // проверка, что аккаунт существует - commit сработал
-            val account = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Account>(accountId)
+            val account = groundApiClient.getById<Account>(accountId)
 
             println("account: $account")
             assertThat(account).isNotNull
@@ -592,7 +599,7 @@ class GroundApiClientIT {
             val accountId = groundApiClient.tx { txId ->
                 // внутри транзакции: создание аккаунта
                 val createdAccount = groundApiClient.create(
-                    value = _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                    value = Account().apply {
                         datatype = AccountDatatype.STRING_ARRAY
                         value = "account value"
                     },
@@ -603,22 +610,22 @@ class GroundApiClientIT {
                 // добавление changes в account
                 val addToSublistBuilder = addToSublist(
                     id = accountId,
-                    sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
-                    entityToAdd = _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+                    sublistFieldGetter = Account::getChanges,
+                    entityToAdd = Change().apply {
                         ordinal = 23.0
                     }
                 )
                     .addOutputFields(
-                        field(_root_ide_package_.io.extremum.ground.client.model.Change::getUuid),
+                        field(Change::getUuid),
                     )
                     .inTx(txId)
-                groundApiClient.updateSublist<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Change>(addToSublistBuilder)
+                groundApiClient.updateSublist<Account, Change>(addToSublistBuilder)
 
                 accountId
             }
 
             // проверка, что аккаунт существует - commit сработал
-            val account = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Account>(accountId)
+            val account = groundApiClient.getById<Account>(accountId)
 
             println("account: $account")
             assertThat(account).isNotNull
@@ -660,12 +667,12 @@ class GroundApiClientIT {
             // начало транзакции
             val builder = query()
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid)
+                    field(Zone::getDescription),
+                    field(Zone::getUuid)
                 )
                 .beginTx()
 
-            val beginTxResponse = groundApiClient.query<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val beginTxResponse = groundApiClient.query<Zone>(builder)
             val txId = beginTxResponse.validateStatusAndTx().txId
 
             // commit без действий, которые нуждаются в commit-е
@@ -689,30 +696,30 @@ class GroundApiClientIT {
             // начало транзакции
             val builder = query()
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid)
+                    field(Zone::getDescription),
+                    field(Zone::getUuid)
                 )
                 .beginTx()
 
-            val beginTxResponse = groundApiClient.query<_root_ide_package_.io.extremum.ground.client.model.Zone>(builder)
+            val beginTxResponse = groundApiClient.query<Zone>(builder)
             val txId = beginTxResponse.validateStatusAndTx().txId
 
             // внутри транзакции: создание аккаунта
             val createBuilder = update()
                 .setInput(
-                    _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+                    Account().apply {
                         datatype = AccountDatatype.STRING_ARRAY
                         value = "account value"
                     }
                 )
                 .addOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getDatatype),
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getValue),
+                    field(Account::getDatatype),
+                    field(Account::getValue),
                 )
                 .inTx(txId)
 
-            val createdAccountResponse = groundApiClient.update<_root_ide_package_.io.extremum.ground.client.model.Account>(createBuilder)
-            val createdAccount = createdAccountResponse.validateStatusAndValueNotNull(classNameShort<_root_ide_package_.io.extremum.ground.client.model.Account>())
+            val createdAccountResponse = groundApiClient.update<Account>(createBuilder)
+            val createdAccount = createdAccountResponse.validateStatusAndValueNotNull(classNameShort<Account>())
             val accountId = createdAccount.uuid
 
             // rollback
@@ -722,10 +729,10 @@ class GroundApiClientIT {
             // проверка, что аккаунт не существует - rollback сработал
             val getByIdBuilder = getById(accountId)
                 .setOutputFields(
-                    field(_root_ide_package_.io.extremum.ground.client.model.Account::getUuid)
+                    field(Account::getUuid)
                 )
 
-            val account = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Account>(getByIdBuilder).value
+            val account = groundApiClient.getById<Account>(getByIdBuilder).value
             println("account: $account")
             assertThat(account).isNull()
 
@@ -752,11 +759,11 @@ class GroundApiClientIT {
         runBlocking {
             // inTx с несуществующей транзакцией работает как beginTx для указанной транзакции
             val txId = randomUuidStr()
-            val zone = groundApiClient.createEmpty<_root_ide_package_.io.extremum.ground.client.model.Zone>(txId)
+            val zone = groundApiClient.createEmpty<Zone>(txId)
 
             groundApiClient.commit(txId)
 
-            val afterCommit = groundApiClient.getById<_root_ide_package_.io.extremum.ground.client.model.Zone>(zone.uuid)
+            val afterCommit = groundApiClient.getById<Zone>(zone.uuid)
             assertThat(afterCommit).isNotNull
         }
     }

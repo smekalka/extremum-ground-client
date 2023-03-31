@@ -2,6 +2,12 @@ package io.extremum.ground.client.builder.core.outputfield
 
 import io.extremum.ground.client.builder.core.PagingAndSortingRequest
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
+import io.extremum.ground.client.builder.core.outputfield.model.ChildModel
+import io.extremum.ground.client.builder.core.outputfield.model.Level0
+import io.extremum.ground.client.builder.core.outputfield.model.Level1
+import io.extremum.ground.client.builder.core.outputfield.model.Level2
+import io.extremum.ground.client.builder.core.outputfield.model.Name
+import io.extremum.ground.client.builder.core.outputfield.model.ParentModel
 import io.extremum.ground.client.builder.core.setPaging
 import io.extremum.test.tools.StringUtils.assertEqual
 import org.junit.jupiter.api.Test
@@ -11,7 +17,7 @@ class OutputFieldStrTest {
     @Test
     fun `single field`() {
         assertEqual(
-            actual = field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level0::getLevel0).toField().build(),
+            actual = field(Level0::getLevel0).toField().build(),
             exp = "level0"
         )
     }
@@ -21,11 +27,9 @@ class OutputFieldStrTest {
         // by list of fields
         assertEqual(
             actual = field(
-                _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level0::getLevel0, listOf(
-                    field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_1),
-                    field(
-                        _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_2, listOf(field(
-                            _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level2::getLevel2)))
+                Level0::getLevel0, listOf(
+                    field(Level1::getLevel1_1),
+                    field(Level1::getLevel1_2, listOf(field(Level2::getLevel2)))
                 )
             )
                 .toField()
@@ -41,11 +45,14 @@ level0 {
         // by vararg of fields
         assertEqual(
             actual = field(
-                _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level0::getLevel0,
-                field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_1),
+                Level0::getLevel0,
+                field(Level1::getLevel1_1),
                 field(
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_2, field(
-                        _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level2::getLevel2))
+                    Level1::getLevel1_2,
+                    field(
+                        Level2::getLevel2
+                    )
+                )
             )
                 .toField()
                 .build(),
@@ -61,10 +68,13 @@ level0 {
         assertEqual(
             actual = field(
                 "level0",
-                field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_1),
+                field(Level1::getLevel1_1),
                 field(
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_2, field(
-                        _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level2::getLevel2))
+                    Level1::getLevel1_2,
+                    field(
+                        Level2::getLevel2
+                    )
+                )
             )
                 .toField()
                 .build(),
@@ -79,9 +89,9 @@ level0 {
         // by vararg of properties
         assertEqual(
             actual = field(
-                _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level0::getLevel0,
-                field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_1),
-                field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level1::getLevel1_2, _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Level2::getLevel2)
+                Level0::getLevel0,
+                field(Level1::getLevel1_1),
+                field(Level1::getLevel1_2, Level2::getLevel2)
             )
                 .toField()
                 .build(),
@@ -99,13 +109,13 @@ level0 {
     fun `field with nested list`() {
         assertEqual(
             actual = field(
-                _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.ParentModel::getChildren,
+                ParentModel::getChildren,
                 field(
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.ChildModel::getName,
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Name::getFirst,
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Name::getSecond
+                    ChildModel::getName,
+                    Name::getFirst,
+                    Name::getSecond
                 ),
-                field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.ChildModel::getSurname)
+                field(ChildModel::getSurname)
             ).setPaging(PagingAndSortingRequest(limit = 2, offset = 3))
                 .toField()
                 .build(),
@@ -133,13 +143,13 @@ children(
     fun `field with nested list and default paging`() {
         assertEqual(
             actual = field(
-                _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.ParentModel::getChildren,
+                ParentModel::getChildren,
                 field(
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.ChildModel::getName,
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Name::getFirst,
-                    _root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.Name::getSecond
+                    ChildModel::getName,
+                    Name::getFirst,
+                    Name::getSecond
                 ),
-                field(_root_ide_package_.io.extremum.ground.client.builder.core.outputfield.model.ChildModel::getSurname)
+                field(ChildModel::getSurname)
             )
                 .toField()
                 .build(),

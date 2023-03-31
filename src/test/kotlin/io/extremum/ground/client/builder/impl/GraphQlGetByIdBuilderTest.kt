@@ -4,6 +4,8 @@ import io.extremum.ground.client.builder.Builders.getById
 import io.extremum.ground.client.builder.core.outputfield.OutputFieldUtils.allFields
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
 import io.extremum.ground.client.builder.core.setOutputFields
+import io.extremum.ground.client.model.Account
+import io.extremum.ground.client.model.Change
 import io.extremum.test.tools.StringUtils.assertEqual
 import io.extremum.test.tools.StringUtils.wrapWithQuery
 import org.junit.jupiter.api.Test
@@ -69,8 +71,8 @@ query {
         val result = getById(id)
             .setOutputFields(
                 field(
-                    _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
-                    allFields(_root_ide_package_.io.extremum.ground.client.model.Change::class)
+                    Account::getChanges,
+                    allFields(Change::class)
                 )
             ).build("account")
 

@@ -6,6 +6,7 @@ import io.extremum.ground.client.builder.core.PagingAndSortingRequest
 import io.extremum.ground.client.builder.core.SortOrder.Companion.sortOrder
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
 import io.extremum.ground.client.builder.core.setOutputFields
+import io.extremum.ground.client.model.Zone
 import io.extremum.test.tools.StringUtils.assertEqual
 import io.extremum.test.tools.StringUtils.wrapWithQuery
 import org.junit.jupiter.api.Test
@@ -36,8 +37,8 @@ query {
 
         val result = query()
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid),
+                field(Zone::getDescription),
+                field(Zone::getUuid),
             )
             .build("zones")
 
@@ -68,8 +69,8 @@ query {
 
         val result = query(PagingAndSortingRequest(limit = 100, offset = 10))
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid),
+                field(Zone::getDescription),
+                field(Zone::getUuid),
             )
             .build("zones")
 
@@ -111,14 +112,14 @@ query {
         val result = query(
                 PagingAndSortingRequest(
                     limit = 100, offset = 10, orders = listOf(
-                        sortOrder(direction = Direction.DESC, property = _root_ide_package_.io.extremum.ground.client.model.Zone::getUuid),
-                        sortOrder(direction = Direction.ASC, property = _root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
+                        sortOrder(direction = Direction.DESC, property = Zone::getUuid),
+                        sortOrder(direction = Direction.ASC, property = Zone::getDescription),
                     )
                 )
             )
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid),
+                field(Zone::getDescription),
+                field(Zone::getUuid),
             )
             .build("zones")
 
@@ -150,8 +151,8 @@ query {
 
         val result = query(filter = "object.name.eq(\"event2\")")
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getDescription),
-                field(_root_ide_package_.io.extremum.ground.client.model.Zone::getUuid),
+                field(Zone::getDescription),
+                field(Zone::getUuid),
             )
             .build("zones")
 

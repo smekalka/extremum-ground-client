@@ -3,6 +3,9 @@ package io.extremum.ground.client.builder.impl
 import io.extremum.ground.client.builder.Builders.removeFromSublist
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
 import io.extremum.ground.client.builder.core.setOutputFields
+import io.extremum.ground.client.model.Account
+import io.extremum.ground.client.model.Change
+import io.extremum.ground.client.model.Compensation
 import io.extremum.sharedmodels.descriptor.Descriptor
 import io.extremum.test.tools.StringUtils.assertEqual
 import io.extremum.test.tools.StringUtils.wrapWithQuery
@@ -48,16 +51,16 @@ mutation {
 
         val result = removeFromSublist(
             id = uuid,
-            sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
+            sublistFieldGetter = Account::getChanges,
             idToRemove = uuidToRemove
         )
             .setOutputFields(
-                field(_root_ide_package_.io.extremum.ground.client.model.Change::getUuid),
-                field(_root_ide_package_.io.extremum.ground.client.model.Change::getOrdinal),
+                field(Change::getUuid),
+                field(Change::getOrdinal),
                 field(
-                    _root_ide_package_.io.extremum.ground.client.model.Change::getCompensation,
-                    _root_ide_package_.io.extremum.ground.client.model.Compensation::getFunction,
-                    _root_ide_package_.io.extremum.ground.client.model.Compensation::getParameters,
+                    Change::getCompensation,
+                    Compensation::getFunction,
+                    Compensation::getParameters,
                 ),
             )
             .build("account")

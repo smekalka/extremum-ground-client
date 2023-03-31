@@ -3,6 +3,7 @@ package io.extremum.ground.client.builder.core.outputfield
 import io.extremum.ground.client.builder.core.PagingAndSortingRequest
 import io.extremum.ground.client.builder.core.outputfield.OutputFields.field
 import io.extremum.ground.client.builder.core.setPaging
+import io.extremum.ground.client.model.TestBasicModel
 import io.extremum.sharedmodels.basic.GraphQlList
 import io.extremum.test.tools.StringUtils.assertEqual
 import org.junit.jupiter.api.Test
@@ -180,15 +181,15 @@ children(
 
     private data class ParentModel(
         val children: GraphQlList<ChildModel>
-    ) : _root_ide_package_.io.extremum.ground.client.model.TestBasicModel()
+    ) : TestBasicModel()
 
     private data class ChildModel(
         var name: Name? = null,
         var surname: String? = null,
-    ) : _root_ide_package_.io.extremum.ground.client.model.TestBasicModel()
+    ) : TestBasicModel()
 
     private data class Name(
         val first: String? = null,
         val second: String? = null,
-    ) : _root_ide_package_.io.extremum.ground.client.model.TestBasicModel()
+    ) : TestBasicModel()
 }

@@ -62,7 +62,7 @@ class ApiQueryExecutorTest {
             mockClientResponse(body = body, httpStatus = HttpStatus.OK)
 
             val builder = Builders.query()
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Zone, GroundApiClient.QueryResponse>(builder)
+            val result = apiQueryExecutor.execute<Zone, GroundApiClient.QueryResponse>(builder)
 
             assertThat(result.value?.toJson()).isEqualTo(queryResponse.toJson())
             assertThat(result.status).isEqualTo(Response.Status.OK)
@@ -70,8 +70,8 @@ class ApiQueryExecutorTest {
         }
     }
 
-    private fun zone(uuid: String, description: String): _root_ide_package_.io.extremum.ground.client.model.Zone =
-        _root_ide_package_.io.extremum.ground.client.model.Zone().apply {
+    private fun zone(uuid: String, description: String): Zone =
+        Zone().apply {
             this.uuid = uuid.toDescriptor()
             this.description = description.toStringOrMultilingual()
         }
@@ -83,14 +83,14 @@ class ApiQueryExecutorTest {
     @Test
     fun `get by id`() {
         runBlocking {
-            val account = _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+            val account = Account().apply {
                 uuid = randomUuidDescriptor()
             }
             val body = "{\"data\": {\"account\": ${account.toJson()}}}"
             mockClientResponse(body = body, httpStatus = HttpStatus.OK)
 
             val builder = Builders.getById(randomUuidDescriptor())
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+            val result = apiQueryExecutor.execute<Account, Account>(builder)
 
             assertThat(result).isEqualTo(Response(account, action = Action.GET_BY_ID))
             verify(requestBodyUriMock).bodyValue(builder.build("account"))
@@ -127,10 +127,10 @@ class ApiQueryExecutorTest {
 
             val builder = Builders.addToSublist(
                 id = randomUuidDescriptor(),
-                sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
+                sublistFieldGetter = Account::getChanges,
                 entityToAdd = change(uuid = "4", data = "desc 4")
             )
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Account, Map<String, Any?>>(builder)
+            val result = apiQueryExecutor.execute<Account, Map<String, Any?>>(builder)
 
             assertThat(result.value?.toJson()).isEqualTo(mapOf("addChanges" to queryResponse).toJson())
             assertThat(result.status).isEqualTo(Response.Status.OK)
@@ -138,8 +138,8 @@ class ApiQueryExecutorTest {
         }
     }
 
-    private fun change(uuid: String, data: String): _root_ide_package_.io.extremum.ground.client.model.Change =
-        _root_ide_package_.io.extremum.ground.client.model.Change().apply {
+    private fun change(uuid: String, data: String): Change =
+        Change().apply {
             this.uuid = uuid.toDescriptor()
             this.data = StringOrObject(data)
         }
@@ -159,10 +159,10 @@ class ApiQueryExecutorTest {
 
             val builder = Builders.removeFromSublist(
                 id = randomUuidDescriptor(),
-                sublistFieldGetter = _root_ide_package_.io.extremum.ground.client.model.Account::getChanges,
+                sublistFieldGetter = Account::getChanges,
                 idToRemove = randomUuidDescriptor()
             )
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Account, Map<String, Any?>>(builder)
+            val result = apiQueryExecutor.execute<Account, Map<String, Any?>>(builder)
 
             assertThat(result.value?.toJson()).isEqualTo(mapOf("removeChanges" to queryResponse).toJson())
             assertThat(result.status).isEqualTo(Response.Status.OK)
@@ -173,7 +173,7 @@ class ApiQueryExecutorTest {
     @Test
     fun `get by id, in tx`() {
         runBlocking {
-            val account = _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+            val account = Account().apply {
                 uuid = randomUuidDescriptor()
             }
             val body = "{\"data\": {\"account\": ${account.toJson()}}}"
@@ -183,7 +183,7 @@ class ApiQueryExecutorTest {
             val requestInTx = "222"
             val builder = Builders.getById(randomUuidDescriptor())
                 .inTx(requestInTx)
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+            val result = apiQueryExecutor.execute<Account, Account>(builder)
 
             assertThat(result).isEqualTo(Response(account, txId = responseTx, action = Action.GET_BY_ID))
         }
@@ -192,7 +192,7 @@ class ApiQueryExecutorTest {
     @Test
     fun `get by id, begin tx`() {
         runBlocking {
-            val account = _root_ide_package_.io.extremum.ground.client.model.Account().apply {
+            val account = Account().apply {
                 uuid = randomUuidDescriptor()
             }
             val body = "{\"data\": {\"account\": ${account.toJson()}}}"
@@ -201,7 +201,7 @@ class ApiQueryExecutorTest {
 
             val builder = Builders.getById(randomUuidDescriptor())
                 .beginTx()
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+            val result = apiQueryExecutor.execute<Account, Account>(builder)
 
             assertThat(result).isEqualTo(Response(account, txId = responseTx, action = Action.GET_BY_ID))
         }
@@ -213,7 +213,7 @@ class ApiQueryExecutorTest {
             mockClientResponse(body = null, httpStatus = HttpStatus.INTERNAL_SERVER_ERROR)
 
             val builder = Builders.getById(randomUuidDescriptor())
-            val result = apiQueryExecutor.execute<_root_ide_package_.io.extremum.ground.client.model.Account, _root_ide_package_.io.extremum.ground.client.model.Account>(builder)
+            val result = apiQueryExecutor.execute<Account, Account>(builder)
 
             assertThat(result).isEqualTo(Response(null, INTERNAL_SERVER_ERROR, action = Action.GET_BY_ID))
         }
