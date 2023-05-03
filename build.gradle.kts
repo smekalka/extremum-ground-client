@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.0.1"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
     java
@@ -15,7 +14,6 @@ val extremumGroup = "io.extremum"
 val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val springBootVersion = "3.0.1"
 val extremumToolsVersion = "3.2.0-rc.1"
 
 group = extremumGroup
@@ -41,11 +39,14 @@ dependencies {
     implementation("io.extremum:extremum-model-tools:$extremumToolsVersion")
     testImplementation("io.extremum:extremum-test-tools:$extremumToolsVersion")
 
-    implementation("org.springframework.boot:spring-boot-starter-webflux:$springBootVersion")
+    implementation("org.springframework:spring-webflux:6.0.8")
     implementation("de.cronn:reflection-util:2.14.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.20")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    testImplementation("org.assertj:assertj-core:3.23.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 
     implementation("org.apache.commons:commons-text:1.3")
