@@ -10,9 +10,11 @@ import io.extremum.ground.client.builder.util.StringUtils.unescape
 import io.extremum.ground.client.client.Response.Companion.toStatus
 import io.extremum.ground.client.client.Response.Status.DATA_FETCHING_EXCEPTION
 import io.extremum.ground.client.client.Response.Status.INVALID_SYNTAX
+import io.extremum.ground.client.client.Response.Status.MODEL_NOT_FOUND
 import io.extremum.ground.client.client.Response.Status.OTHER_ERROR
 import io.extremum.ground.client.client.Response.Status.TX_NOT_FOUND
 import io.extremum.ground.client.client.Response.Status.VALIDATION_ERROR
+import io.extremum.model.tools.mapper.MapperUtils.convertToMap
 import io.extremum.model.tools.mapper.MapperUtils.readValue
 import io.extremum.sharedmodels.basic.BasicModel
 import io.smallrye.graphql.client.GraphQLError
@@ -25,6 +27,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitExchange
 import java.util.logging.Logger
+import javax.json.JsonString
 
 class ApiQueryExecutor internal constructor(
     url: String,
@@ -43,12 +46,22 @@ class ApiQueryExecutor internal constructor(
     /**
      * Запрос по сущности [T] с ожидаемым ответом [R]
      */
-    suspend inline fun <reified T : BasicModel<*>, reified R> execute(builder: GraphQlBuilder): Response<R> {
-        val rootName = builder.getRootName(getCollectionName<T>())
-        return execute(builder, rootName)
+    suspend inline fun <reified T : BasicModel<*>, reified R> execute(builder: GraphQlBuilder): Response<R> =
+        execute(T::class.java, R::class.java, builder)
+
+    suspend fun <T : BasicModel<*>, R> execute(
+        modelClazz: Class<T>,
+        responseClazz: Class<R>,
+        builder: GraphQlBuilder
+    ): Response<R> {
+        val rootName = builder.getRootName(getCollectionName(modelClazz))
+        return execute(responseClazz, builder, rootName)
     }
 
-    suspend inline fun <reified R> execute(builder: GraphQlBuilder, rootName: String): Response<R> {
+    suspend inline fun <reified R> execute(builder: GraphQlBuilder, rootName: String): Response<R> =
+        execute(R::class.java, builder, rootName)
+
+    suspend inline fun <R> execute(clazz: Class<R>, builder: GraphQlBuilder, rootName: String): Response<R> {
         val txAction = builder.txAction
         val requestBody = builder.build(rootName)
         logger.info("\n\nrequestBody:\n${requestBody.unescape()}\ntxAction: $txAction\n")
@@ -80,7 +93,7 @@ class ApiQueryExecutor internal constructor(
                         null
                     } else {
                         val rootData = body.data?.get(rootName)
-                        rootData.toString().readValue<R>()
+                        rootData.toString().readValue(clazz)
                     }
                 } else {
                     null
@@ -116,7 +129,7 @@ class ApiQueryExecutor internal constructor(
             Response(false, action = action, status = TX_NOT_FOUND, txId = txId)
         }
 
-    inline fun <reified T : BasicModel<*>> getCollectionName(): String = classNameShort<T>().lowercase()
+    private fun <T : BasicModel<*>> getCollectionName(clazz: Class<T>): String = classNameShort(clazz).lowercase()
 
     fun <T : RequestHeadersSpec<T>> RequestHeadersSpec<T>.addHeaders(): RequestHeadersSpec<T> =
         apply {
@@ -128,16 +141,52 @@ class ApiQueryExecutor internal constructor(
 
     fun GraphQLError?.toStatus(): Response.Status {
         this ?: return OTHER_ERROR
-        return when (extensions[ERROR_EXTENSION_CLASSIFICATION]) {
+        val alerts = extensions[ERROR_EXTENSION_ALERTS]
+        if (alerts != null) {
+            return getStatusFromAlerts(alerts)
+        }
+
+        val classification = extensions[ERROR_EXTENSION_CLASSIFICATION]
+        if (classification != null) {
+            return getStatusFromErrorClassification(classification)
+        }
+
+        logger.warning("There is no alerts and classification in response error: $this")
+        return OTHER_ERROR
+    }
+
+    private fun getStatusFromAlerts(alerts: Any?): Response.Status {
+        val firstOrNull = (alerts as List<*>).firstOrNull() ?: return OTHER_ERROR
+        val convertToMap = firstOrNull.convertToMap()
+        val codeRaw = convertToMap["code"]
+        if (codeRaw is JsonString) {
+            return when (val code = codeRaw.string) {
+                "not-found" -> MODEL_NOT_FOUND
+                else -> {
+                    logger.warning("Unsupported alert code: $code")
+                    OTHER_ERROR
+                }
+            }
+        }
+        logger.warning("Unsupported format of code: $codeRaw")
+        return OTHER_ERROR
+    }
+
+    private fun getStatusFromErrorClassification(classification: Any): Response.Status {
+        return when (classification) {
             "DataFetchingException" -> DATA_FETCHING_EXCEPTION
             "InvalidSyntax" -> INVALID_SYNTAX
             "ValidationError" -> VALIDATION_ERROR
-            else -> OTHER_ERROR
+            else -> {
+                logger.warning("Unsupported error classification: $classification")
+                OTHER_ERROR
+            }
         }
     }
 
     companion object {
         private const val ERROR_EXTENSION_CLASSIFICATION = "classification"
+        private const val ERROR_EXTENSION_ALERTS = "alerts"
         const val GRAPHQL_URI = "/graphql"
         private const val TX_URI = "/tx"
         const val X_APP_ID_HEADER = "x-app-id"

@@ -335,7 +335,7 @@ mutation {
 
         val result = update(uuid)
             .setInput(event, Event::getUrl)
-            .setAllOutputFields(Event::class)
+            .setAllOutputFields(Event::class.java)
             .build("event")
 
         assertEqual(result, exp)
@@ -368,7 +368,7 @@ mutation {
 
         val result = update()
             .setInput(model, Model::name)
-            .setAllOutputFields(Model::class)
+            .setAllOutputFields(Model::class.java)
             .build("model")
 
         assertEqual(result, exp)

@@ -77,6 +77,15 @@ object Builders {
     ): GraphQlAddToSublistBuilder<V> =
         addToSublist(id, getFieldName(T::class, sublistFieldGetter), listOf(entityToAdd))
 
+    fun <T : BasicModel<*>> addToSublist(
+        id: Any,
+        sublistFieldName: String,
+        entityToAdd: T,
+        inputFields: List<String> = listOf()
+    ): GraphQlAddToSublistBuilder<T> =
+        GraphQlAddToSublistBuilder(id, listOf(entityToAdd), inputFields)
+            .setSublistMutationName(sublistFieldName)
+
     /**
      * Удаление в сущности с id [id] в дочернем списке [sublistFieldName] элемента с id [idToRemove].
      */

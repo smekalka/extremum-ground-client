@@ -62,4 +62,4 @@ fun <T : GraphQlBuilder> T.addOutputFields(vararg outputFields: OutputField): T 
  * За исключением полей со списками и полей того же типа, что и сама модель (например, User -> User на любом из уровней).
  * При зацикливании на большем уровне вложенности не применима (например, User -> Role -> User)
  */
-fun <T : GraphQlBuilder> T.setAllOutputFields(clazz: KClass<*>): T = setOutputFields(allFields(clazz.java))
+fun <T : GraphQlBuilder> T.setAllOutputFields(clazz: Class<*>): T = setOutputFields(allFields(clazz))

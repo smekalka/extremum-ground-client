@@ -14,8 +14,9 @@ import io.extremum.ground.client.builder.tx.beginTx
 import io.extremum.ground.client.builder.tx.commit
 import io.extremum.ground.client.builder.tx.inTx
 import io.extremum.ground.client.builder.util.StringUtils.classNameShort
-import io.extremum.ground.client.client.Response.Status.DATA_FETCHING_EXCEPTION
+import io.extremum.ground.client.client.Response.Status.MODEL_NOT_FOUND
 import io.extremum.ground.client.client.Response.Status.TX_NOT_FOUND
+import io.extremum.ground.client.client.Response.Status.VALIDATION_ERROR
 import io.extremum.ground.client.model.Account
 import io.extremum.ground.client.model.Account.AccountDatatype
 import io.extremum.ground.client.model.Change
@@ -105,7 +106,6 @@ class GroundApiClientIT {
         }
     }
 
-
     @Disabled("launched ground application is needed")
     @Test
     fun `get zone by not existing id`() {
@@ -118,7 +118,26 @@ class GroundApiClientIT {
             val (result, status) = groundApiClient.getById<Zone>(builder)
 
             println("result: $result")
-            assertThat(status).isEqualTo(DATA_FETCHING_EXCEPTION)
+            assertThat(status).isEqualTo(MODEL_NOT_FOUND)
+            assertThat(result).isNull()
+        }
+    }
+
+    @Disabled("launched ground application is needed")
+    @Test
+    fun `get zone with not existing output fields`() {
+        runBlocking {
+            val zone = groundApiClient.createEmpty<Zone>()
+            val id = zone.uuid
+            val builder = getById(id)
+                .setOutputFields(
+                    field("notExistingField")
+                )
+
+            val (result, status) = groundApiClient.getById<Zone>(builder)
+
+            println("result: $result")
+            assertThat(status).isEqualTo(VALIDATION_ERROR)
             assertThat(result).isNull()
         }
     }
@@ -307,7 +326,7 @@ class GroundApiClientIT {
             val (result, status) = groundApiClient.update<Account>(builder)
 
             println("result: $result")
-            assertThat(status).isEqualTo(DATA_FETCHING_EXCEPTION)
+            assertThat(status).isEqualTo(MODEL_NOT_FOUND)
             assertThat(result).isNull()
         }
     }
@@ -352,7 +371,7 @@ class GroundApiClientIT {
             val (result, status) = groundApiClient.remove(builder)
 
             println("result: $result")
-            assertThat(status).isEqualTo(DATA_FETCHING_EXCEPTION)
+            assertThat(status).isEqualTo(MODEL_NOT_FOUND)
             assertThat(result).isFalse
         }
     }
@@ -406,7 +425,7 @@ class GroundApiClientIT {
                 }
             }
         )
-            .setAllOutputFields(Change::class)
+            .setAllOutputFields(Change::class.java)
 
         val response = groundApiClient.updateSublist<Account, Change>(builder)
         return response.validateStatusAndValueNotNull(classNameShort<Change>())
@@ -436,9 +455,13 @@ class GroundApiClientIT {
 
             val getAccountResponse = groundApiClient.getById<Account>(
                 getById(createdAccount.uuid)
-                    .setOutputFields(field(
-                        Account::getChanges, field(
-                            Change::getOrdinal)))
+                    .setOutputFields(
+                        field(
+                            Account::getChanges, field(
+                                Change::getOrdinal
+                            )
+                        )
+                    )
             )
             val account = getAccountResponse.validateStatusAndValueNotNull(classNameShort<Account>())
             assertThat(account.changes).isNotNull

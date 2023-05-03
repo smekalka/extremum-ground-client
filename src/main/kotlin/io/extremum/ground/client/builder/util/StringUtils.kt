@@ -29,7 +29,9 @@ object StringUtils {
     private val sdf = SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSSSSSZ");
     fun Date.toIsoString(): String = sdf.format(this)
 
-    inline fun <reified T : Any> classNameShort(): String = T::class.simpleName.toString()
+    inline fun <reified T : Any> classNameShort(): String = classNameShort(T::class.java)
+
+    fun <T : Any> classNameShort(clazz: Class<T>): String = clazz.simpleName.toString()
 
     fun String.escape(): String = StringEscapeUtils.escapeJava(this)
 

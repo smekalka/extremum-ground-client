@@ -69,6 +69,7 @@ data class Response<T>(
         BAD_REQUEST,
         UNAUTHORIZED,
         OTHER_ERROR,
+        MODEL_NOT_FOUND,
         DATA_FETCHING_EXCEPTION,
         INVALID_SYNTAX,
         VALIDATION_ERROR,
