@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add methods to client for using in java
 - Parse error response with alerts from Ground service
 - Fix dependencies
+- Support disabling autoconfiguration
 
 ## [3.0.0] - 2023-03-24
 
