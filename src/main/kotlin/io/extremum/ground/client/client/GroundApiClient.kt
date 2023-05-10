@@ -22,14 +22,24 @@ import java.util.UUID.randomUUID
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.EmptyCoroutineContext
 
-class GroundApiClient(url: String, headers: Map<String, String>) {
-
-    constructor(url: String) : this(url, mapOf())
+class GroundApiClient(
+    url: String,
+    headers: Map<String, String> = mapOf(),
+    xAppId: String,
+    graphqlPath: String,
+    txPath: String,
+) {
 
     val apiQueryExecutor: ApiQueryExecutor
 
     init {
-        apiQueryExecutor = ApiQueryExecutor(url, headers, xAppId = "0")
+        apiQueryExecutor = ApiQueryExecutor(
+            url = url,
+            headers = headers,
+            xAppId = xAppId,
+            graphqlPath = graphqlPath,
+            txPath = txPath,
+        )
     }
 
     fun updateHeaders(headers: Map<String, String>) {

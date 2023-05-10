@@ -32,6 +32,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static io.extremum.ground.client.client.GroundProperties.GRAPHQL_PATH;
+import static io.extremum.ground.client.client.GroundProperties.TOKEN;
+import static io.extremum.ground.client.client.GroundProperties.TX_PATH;
+import static io.extremum.ground.client.client.GroundProperties.URL;
+import static io.extremum.ground.client.client.GroundProperties.X_APP_ID;
 import static io.extremum.ground.client.client.Response.Status.MODEL_NOT_FOUND;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +47,14 @@ public class GroundApiClientJavaIT {
 
     public GroundApiClientJavaIT() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaders.AUTHORIZATION, GroundProperties.TOKEN);
-        groundApiClient = new GroundApiClient(GroundProperties.URL, headers);
+        headers.put(HttpHeaders.AUTHORIZATION, TOKEN);
+        groundApiClient = new GroundApiClient(
+                URL,
+                headers,
+                X_APP_ID,
+                GRAPHQL_PATH,
+                TX_PATH
+        );
     }
 
     @Disabled("launched ground application is needed")

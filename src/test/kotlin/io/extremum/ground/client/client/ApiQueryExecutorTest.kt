@@ -5,10 +5,12 @@ import io.extremum.ground.client.builder.core.Action
 import io.extremum.ground.client.builder.tx.TxConstants.TX_ID_COOKIE_NAME
 import io.extremum.ground.client.builder.tx.beginTx
 import io.extremum.ground.client.builder.tx.inTx
+import io.extremum.ground.client.client.GroundProperties.GRAPHQL_PATH
+import io.extremum.ground.client.client.GroundProperties.TX_PATH
+import io.extremum.ground.client.client.GroundProperties.X_APP_ID
 import io.extremum.ground.client.model.Account
 import io.extremum.ground.client.model.Change
 import io.extremum.ground.client.model.Zone
-import io.extremum.ground.client.client.ApiQueryExecutor.Companion.GRAPHQL_URI
 import io.extremum.ground.client.client.Response.Status.INTERNAL_SERVER_ERROR
 import io.extremum.sharedmodels.basic.StringOrObject
 import io.extremum.sharedmodels.descriptor.Descriptor
@@ -45,7 +47,14 @@ class ApiQueryExecutorTest {
 
     @BeforeEach
     fun beforeEach() {
-        apiQueryExecutor = ApiQueryExecutor(url, mapOf("auth" to authToken), "0", webClientMock)
+        apiQueryExecutor = ApiQueryExecutor(
+            url = url,
+            headers = mapOf("auth" to authToken),
+            xAppId = X_APP_ID,
+            graphqlPath = GRAPHQL_PATH,
+            txPath = TX_PATH,
+            webClient = webClientMock
+        )
     }
 
     @Test
@@ -221,7 +230,7 @@ class ApiQueryExecutorTest {
 
     private fun mockClientResponse(body: String?, httpStatus: HttpStatus, txId: String? = null) {
         whenever(webClientMock.post()).thenReturn(requestBodyUriMock)
-        whenever(requestBodyUriMock.uri(GRAPHQL_URI)).thenReturn(requestBodyUriMock)
+        whenever(requestBodyUriMock.uri(GRAPHQL_PATH)).thenReturn(requestBodyUriMock)
         val clientResponse = ClientResponse.create(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .apply {

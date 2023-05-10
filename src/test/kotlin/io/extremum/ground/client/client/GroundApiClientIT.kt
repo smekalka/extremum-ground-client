@@ -14,6 +14,11 @@ import io.extremum.ground.client.builder.tx.beginTx
 import io.extremum.ground.client.builder.tx.commit
 import io.extremum.ground.client.builder.tx.inTx
 import io.extremum.ground.client.builder.util.StringUtils.classNameShort
+import io.extremum.ground.client.client.GroundProperties.GRAPHQL_PATH
+import io.extremum.ground.client.client.GroundProperties.TOKEN
+import io.extremum.ground.client.client.GroundProperties.TX_PATH
+import io.extremum.ground.client.client.GroundProperties.URL
+import io.extremum.ground.client.client.GroundProperties.X_APP_ID
 import io.extremum.ground.client.client.Response.Status.MODEL_NOT_FOUND
 import io.extremum.ground.client.client.Response.Status.TX_NOT_FOUND
 import io.extremum.ground.client.client.Response.Status.VALIDATION_ERROR
@@ -46,8 +51,11 @@ import java.util.UUID.randomUUID
 class GroundApiClientIT {
 
     private val groundApiClient = GroundApiClient(
-        url = GroundProperties.URL,
-        headers = mapOf(HttpHeaders.AUTHORIZATION to GroundProperties.TOKEN)
+        url = URL,
+        headers = mapOf(HttpHeaders.AUTHORIZATION to TOKEN),
+        xAppId = X_APP_ID,
+        graphqlPath = GRAPHQL_PATH,
+        txPath = TX_PATH,
     )
 
     @Disabled("launched ground application is needed")

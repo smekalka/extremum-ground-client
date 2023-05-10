@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parse error response with alerts from Ground service
 - Fix dependencies
 - Support disabling autoconfiguration
+- Rename and refactor properties
 
 ## [3.0.0] - 2023-03-24
 

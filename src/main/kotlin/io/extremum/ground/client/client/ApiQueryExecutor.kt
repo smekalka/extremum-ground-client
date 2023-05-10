@@ -19,7 +19,6 @@ import io.extremum.model.tools.mapper.MapperUtils.readValue
 import io.extremum.sharedmodels.basic.BasicModel
 import io.smallrye.graphql.client.GraphQLError
 import io.smallrye.graphql.client.impl.ResponseReader
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
@@ -31,9 +30,10 @@ import javax.json.JsonString
 
 class ApiQueryExecutor internal constructor(
     url: String,
-    var headers: Map<String, String>,
-    @Value("\${xAppId}")
+    private var headers: Map<String, String>,
     private val xAppId: String,
+    val graphqlPath: String,
+    private val txPath: String,
     val webClient: WebClient = WebClient.create(url),
 ) {
 
@@ -66,7 +66,7 @@ class ApiQueryExecutor internal constructor(
         val requestBody = builder.build(rootName)
         logger.info("\n\nrequestBody:\n${requestBody.unescape()}\ntxAction: $txAction\n")
         val request = webClient.post()
-            .uri(GRAPHQL_URI)
+            .uri(graphqlPath)
             .bodyValue(requestBody)
             .addHeaders()
             .applyTxAction(txAction)
@@ -109,7 +109,7 @@ class ApiQueryExecutor internal constructor(
         try {
             val txActionResponse = webClient
                 .let { if (action == Action.BEGIN_TX) it.get() else it.post() }
-                .uri(TX_URI + "/" + action.msg + "/" + txId)
+                .uri(txPath + "/" + action.msg + "/" + txId)
                 .addHeaders()
                 .retrieve()
                 .awaitBody<io.extremum.sharedmodels.dto.Response>()
@@ -187,8 +187,6 @@ class ApiQueryExecutor internal constructor(
     companion object {
         private const val ERROR_EXTENSION_CLASSIFICATION = "classification"
         private const val ERROR_EXTENSION_ALERTS = "alerts"
-        const val GRAPHQL_URI = "/graphql"
-        private const val TX_URI = "/tx"
         const val X_APP_ID_HEADER = "x-app-id"
     }
 }
