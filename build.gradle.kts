@@ -14,7 +14,7 @@ val extremumGroup = "io.extremum"
 val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val extremumToolsVersion = "3.2.0-rc.1"
+val extremumToolsVersion = "3.2.0-rc.2"
 
 group = extremumGroup
 version = artifactVersion
@@ -49,6 +49,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
     testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
 
     implementation("org.apache.commons:commons-text:1.3")
 

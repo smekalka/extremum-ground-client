@@ -24,8 +24,8 @@ extremum.ground.client.autoconfiguration=false
 #### Основные параметры
 
 ```properties
-extremum.functions.api.xAppId=
-extremum.functions.api.baseUrl=
+extremum.ground.client.xAppId=
+extremum.ground.client.baseUrl=
 ```
 ```extremum.ground.client.xAppId``` - id приложения (далее ```xAppId```)
 
@@ -52,6 +52,20 @@ extremum.ground.client.tx.path=
 
 ```extremum.ground.client.tx.path``` - дополнительный путь для запросов по транзакциям. По умолчанию ```/tx```.
 
+
+#### Параметры путей storage api
+
+```properties
+extremum.ground.client.storage.uri=
+extremum.ground.client.storage.path=
+extremum.ground.client.storage.headers=
+```
+
+```extremum.ground.client.storage.uri``` - uri к storage api.
+
+```extremum.ground.client.storage.path``` - дополнительный путь в uri. Добавляется к uri. По умолчанию ```/v3```.
+
+```extremum.ground.client.storage.headers``` - headers для запросов. Необязательный параметр. Указывается в формате ```{'Authorization': 'Bearer ', ...}```.
 
 ### Использование
 
