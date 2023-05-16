@@ -1,14 +1,25 @@
 package io.extremum.ground.client.storage
 
+import io.extremum.ground.client.storage.Paths.JOB
+import io.extremum.ground.client.storage.Paths.JOBS
+import io.extremum.ground.client.storage.Paths.OBJECT
+import io.extremum.ground.client.storage.Paths.OBJECTS
+import io.extremum.ground.client.storage.Paths.OBJECT_META
+import io.extremum.ground.client.storage.Paths.OBJECT_MULTIPART
+import io.extremum.ground.client.storage.Paths.OBJECT_MULTIPART_UPLOAD
+import io.extremum.ground.client.storage.Paths.OBJECT_PRESIGN_URL
+import io.extremum.ground.client.storage.Paths.OBJECT_UPLOAD_FORM
 import io.extremum.ground.client.storage.requestbody.GetPresignedUrlBody
-import io.extremum.ground.client.storage.responseresult.ObjectMeta
-import io.extremum.ground.client.storage.responseresult.StatusMultipartUpload
-import io.extremum.ground.client.storage.responseresult.UploadWithMetadata
 import io.extremum.model.tools.api.ExtremumApiException
 import io.extremum.model.tools.api.RequestExecutor
+import io.extremum.model.tools.api.StringUtils.buildApiParams
+import io.extremum.model.tools.api.StringUtils.fillArgs
 import io.extremum.model.tools.mapper.MapperUtils.convertValue
+import io.extremum.sharedmodels.dto.ObjectMetadata
 import io.extremum.sharedmodels.dto.Pagination
+import io.extremum.sharedmodels.dto.PartStatusMultipartUpload
 import io.extremum.sharedmodels.dto.Response
+import io.extremum.sharedmodels.dto.UploadWithMetadata
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -38,18 +49,24 @@ class StorageClient(
     }
 
     suspend fun getObjects(
-        limit: Int,
-        offset: Int,
-        prefix: String = ""
-    ): Pair<List<ObjectMeta>?, Pagination?> =
-        requestExecutor.requestWithPagination(
-            webClient.get()
-                .uri(Paths.OBJECTS)
+        limit: Int? = null,
+        offset: Int? = null,
+        prefix: String? = null
+    ): Pair<List<ObjectMetadata>, Pagination> {
+        val uri = "$OBJECTS?" + buildApiParams(
+            "limit" to limit,
+            "offset" to offset,
+            "prefix" to prefix,
         )
+        return requestExecutor.requestWithPagination(
+            webClient.get()
+                .uri(uri)
+        )
+    }
 
     suspend fun getObject(key: String): ByteArray? {
         val (responseBody, statusCode) = webClient.get()
-            .uri(Paths.OBJECT.fillArgs(key))
+            .uri(OBJECT.fillArgs(key))
             .apply {
                 this.header(RequestExecutor.X_APP_ID_HEADER, xAppId)
                 headers.forEach { (name, value) ->
@@ -84,7 +101,7 @@ class StorageClient(
     suspend fun postObject(key: String, obj: ByteArray) {
         requestExecutor.requestRaw(
             webClient.post()
-                .uri(Paths.OBJECT.fillArgs(key))
+                .uri(OBJECT.fillArgs(key))
                 .bodyValue(obj)
         )
     }
@@ -92,23 +109,23 @@ class StorageClient(
     suspend fun deleteObject(key: String) {
         requestExecutor.requestRaw(
             webClient.delete()
-                .uri(Paths.OBJECT.fillArgs(key))
+                .uri(OBJECT.fillArgs(key))
         )
     }
-
-    suspend fun startMultipartUpload(key: String): String? =
-        requestExecutor.request(
-            webClient.post()
-                .uri(Paths.OBJECT_MULTIPART.fillArgs(key))
-        )
 
     /**
      * Если объекта с таким [key] не существует, результат будет null.
      */
-    suspend fun getStatusMultipartUpload(key: String, upload: String): List<StatusMultipartUpload>? =
+    suspend fun startMultipartUpload(key: String): String? =
         requestExecutor.request(
+            webClient.post()
+                .uri(OBJECT_MULTIPART.fillArgs(key))
+        )
+
+    suspend fun getStatusMultipartUpload(key: String, upload: String): List<PartStatusMultipartUpload> =
+        requestExecutor.requestList(
             webClient.get()
-                .uri(Paths.OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
+                .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
         )
 
     suspend fun getMultipartUploadsInProgress(
@@ -116,76 +133,74 @@ class StorageClient(
         limit: Int,
         offset: Int,
         prefix: String = ""
-    ): Pair<List<UploadWithMetadata>?, Pagination?> =
+    ): Pair<List<UploadWithMetadata>, Pagination> =
         requestExecutor.requestWithPagination(
             webClient.get()
-                .uri(Paths.OBJECT_MULTIPART.fillArgs(key))
+                .uri(OBJECT_MULTIPART.fillArgs(key))
         )
 
     suspend fun completeMultipartUpload(key: String, upload: String) {
         requestExecutor.requestRaw(
             webClient.put()
-                .uri(Paths.OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
+                .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
         )
     }
 
     suspend fun abortMultipartUpload(key: String, upload: String) {
         requestExecutor.requestRaw(
             webClient.delete()
-                .uri(Paths.OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
+                .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
         )
     }
 
     suspend fun uploadPart(key: String, upload: String, part: Int, obj: ByteArray): String? =
         requestExecutor.request(
             webClient.post()
-                .uri(Paths.OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload) + "?part=" + part)
+                .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload) + "?part=" + part)
                 .bodyValue(obj)
         )
 
-    suspend fun getObjectMeta(key: String): ObjectMeta? =
+    suspend fun getObjectMeta(key: String): ObjectMetadata? =
         requestExecutor.request(
             webClient.get()
-                .uri(Paths.OBJECT_META.fillArgs(key))
+                .uri(OBJECT_META.fillArgs(key))
         )
 
     suspend fun getPresignedUrl(key: String, body: GetPresignedUrlBody): String? =
         requestExecutor.request(
             webClient.post()
-                .uri(Paths.OBJECT_PRESIGN_URL.fillArgs(key))
+                .uri(OBJECT_PRESIGN_URL.fillArgs(key))
                 .bodyValue(body)
         )
 
     suspend fun createPostFormForUpload(key: String): String? =
         requestExecutor.request(
             webClient.post()
-                .uri(Paths.OBJECT_UPLOAD_FORM.fillArgs(key))
+                .uri(OBJECT_UPLOAD_FORM.fillArgs(key))
         )
 
 
     suspend fun listJobs(): String? =
         requestExecutor.request(
             webClient.get()
-                .uri(Paths.JOBS)
+                .uri(JOBS)
         )
 
     suspend fun createJob(): String? =
         requestExecutor.request(
             webClient.post()
-                .uri(Paths.JOBS)
+                .uri(JOBS)
         )
 
     suspend fun getJobMetaData(job: String): String? =
         requestExecutor.request(
             webClient.get()
-                .uri(Paths.JOB.fillArgs(job))
+                .uri(JOB.fillArgs(job))
         )
 
     suspend fun deleteJob(job: String): String? =
         requestExecutor.request(
             webClient.delete()
-                .uri(Paths.JOB.fillArgs(job))
+                .uri(JOB.fillArgs(job))
         )
-
-    private fun String.fillArgs(vararg args: Any?): String = String.format(this, *args)
 }

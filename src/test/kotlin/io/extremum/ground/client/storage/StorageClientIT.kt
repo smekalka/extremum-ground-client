@@ -32,7 +32,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+@Disabled("launched storage service is needed")
     @Test
     fun getObjects() {
         runBlocking {
@@ -40,12 +40,12 @@ class StorageClientIT {
             createObject()
             val (result, pagination) = client.getObjects(
                 limit = 10,
-                offset = 1,
+                offset = 0,
             )
             println(result)
             // если не найдено
-            assertThat(result).isNull()
-            assertThat(pagination).isNull()
+            assertThat(result).isEmpty()
+            assertThat(pagination.total).isEqualTo(0)
             // при наличии результата
 //            assertThat(result).isNotEmpty
 //            assertThat(pagination).isNotNull
@@ -152,8 +152,8 @@ class StorageClientIT {
                 upload = upload!!,
             )
             println(result)
-            // если не было загружено ни одной части, то возвращается null
-            assertThat(result).isNull()
+            // если не было загружено ни одной части, то возвращается null, конвертируется в пустой список
+            assertThat(result).isEmpty()
         }
     }
 
@@ -168,6 +168,7 @@ class StorageClientIT {
             )
             println(result)
             assertThat(result).isNotEmpty
+            println(result.first().resultId)
         }
     }
 
@@ -183,8 +184,8 @@ class StorageClientIT {
             )
             println(result)
             // если не найдено
-            assertThat(result).isNull()
-            assertThat(pagination).isNull()
+            assertThat(result).isEmpty()
+            assertThat(pagination.total).isEqualTo(0)
             // при наличии результата
 //            assertThat(result).isNotEmpty
 //            assertThat(pagination).isNotNull
