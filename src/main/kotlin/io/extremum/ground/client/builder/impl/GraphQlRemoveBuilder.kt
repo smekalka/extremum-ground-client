@@ -1,5 +1,6 @@
 package io.extremum.ground.client.builder.impl
 
+import io.extremum.ground.client.builder.constant.BuilderConstants.ID_FIELD_NAME
 import io.extremum.ground.client.builder.core.Action
 import io.extremum.ground.client.builder.core.GraphQlBuilder
 import io.extremum.ground.client.builder.util.ValueGraphQlFormatter.format
@@ -21,7 +22,7 @@ internal constructor(val id: Any) : GraphQlBuilder() {
                 MUTATION,
                 field(
                     "delete",
-                    arg("id", StringBuilder(id.format())),
+                    arg(ID_FIELD_NAME, StringBuilder(id.format())),
                 )
             )
         )

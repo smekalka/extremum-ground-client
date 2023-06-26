@@ -17,14 +17,14 @@ import io.extremum.ground.client.builder.util.StringUtils.classNameShort
 import io.extremum.model.tools.mapper.MapperUtils.convertValue
 import io.extremum.sharedmodels.basic.BasicModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.future.future
 import java.util.UUID.randomUUID
 import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.EmptyCoroutineContext
 
 class GroundApiClient(
     url: String,
-    headers: Map<String, String> = mapOf(),
     xAppId: String,
     graphqlPath: String,
     txPath: String,
@@ -35,7 +35,6 @@ class GroundApiClient(
     init {
         apiQueryExecutor = ApiQueryExecutor(
             url = url,
-            headers = headers,
             xAppId = xAppId,
             graphqlPath = graphqlPath,
             txPath = txPath,
@@ -43,7 +42,7 @@ class GroundApiClient(
     }
 
     fun updateHeaders(headers: Map<String, String>) {
-        apiQueryExecutor.updateHeaders(headers)
+        HeadersHolder.headers.set(headers)
     }
 
     /**
@@ -59,7 +58,7 @@ class GroundApiClient(
         clazz: Class<T>,
         builder: GraphQlQueryBuilder
     ): CompletableFuture<Response<List<T>>> =
-        CoroutineScope(EmptyCoroutineContext).future {
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
             queryInner(clazz, builder)
         }
 
@@ -93,7 +92,7 @@ class GroundApiClient(
         paging: PagingAndSortingRequest = PagingAndSortingRequest(),
         filter: String? = null,
         inTxId: TxId? = null
-    ): CompletableFuture<List<T>> = CoroutineScope(EmptyCoroutineContext).future {
+    ): CompletableFuture<List<T>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
         queryInner(clazz, paging, filter, inTxId)
     }
 
@@ -124,7 +123,7 @@ class GroundApiClient(
     fun <T : BasicModel<*>> update(
         clazz: Class<T>,
         builder: GraphQlUpdateBuilder
-    ): CompletableFuture<Response<T>> = CoroutineScope(EmptyCoroutineContext).future {
+    ): CompletableFuture<Response<T>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
         updateInner(clazz, builder)
     }
 
@@ -145,7 +144,7 @@ class GroundApiClient(
      * Аналог [create].
      */
     fun <T : BasicModel<*>> create(clazz: Class<T>, value: T, inTxId: TxId? = null): CompletableFuture<T> =
-        CoroutineScope(EmptyCoroutineContext).future {
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
             createInner(clazz, value, inTxId)
         }
 
@@ -170,7 +169,7 @@ class GroundApiClient(
         createEmptyInner(T::class.java, inTxId)
 
     fun <T : BasicModel<*>> createEmpty(clazz: Class<T>, inTxId: TxId? = null): CompletableFuture<T> =
-        CoroutineScope(EmptyCoroutineContext).future {
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
             createEmptyInner(clazz, inTxId)
         }
 
@@ -200,7 +199,7 @@ class GroundApiClient(
         clazz: Class<T>,
         builder: GraphQlGetByIdBuilder
     ): CompletableFuture<Response<T>> =
-        CoroutineScope(EmptyCoroutineContext).future {
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
             getByIdInner(clazz, builder)
         }
 
@@ -220,7 +219,7 @@ class GroundApiClient(
      * Аналог [getById].
      */
     fun <T : BasicModel<*>> getById(clazz: Class<T>, id: Any, inTxId: TxId? = null): CompletableFuture<T?> =
-        CoroutineScope(EmptyCoroutineContext).future {
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
             getByIdInner(clazz, id, inTxId)
         }
 
@@ -273,7 +272,7 @@ class GroundApiClient(
         clazz: Class<T>,
         sublistClazz: Class<R>,
         builder: GraphQlUpdateSublistBuilder
-    ): CompletableFuture<Response<List<R>>> = CoroutineScope(EmptyCoroutineContext).future {
+    ): CompletableFuture<Response<List<R>>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
         updateSublistInner(clazz, sublistClazz, builder)
     }
 
@@ -302,7 +301,7 @@ class GroundApiClient(
     /**
      * Аналог [beginTx].
      */
-    fun beginTxF(): CompletableFuture<Response<Boolean>> = CoroutineScope(EmptyCoroutineContext).future {
+    fun beginTxF(): CompletableFuture<Response<Boolean>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
         beginTx()
     }
 
@@ -318,7 +317,7 @@ class GroundApiClient(
      * Аналог [commit].
      */
     fun commitF(txId: TxId): CompletableFuture<Response<Boolean>> =
-        CoroutineScope(EmptyCoroutineContext).future {
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
             commit(txId)
         }
 
@@ -333,7 +332,7 @@ class GroundApiClient(
     /**
      * Аналог [rollback].
      */
-    fun rollbackF(txId: TxId): CompletableFuture<Response<Boolean>> = CoroutineScope(EmptyCoroutineContext).future {
+    fun rollbackF(txId: TxId): CompletableFuture<Response<Boolean>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
         rollback(txId)
     }
 
@@ -359,6 +358,8 @@ class GroundApiClient(
      * См. [tx]
      */
     suspend fun <T> tx(block: suspend (txId: TxId) -> T): T = tx(block = block, onError = {})
+
+    private fun headersAsContextElement() = HeadersHolder.headers.asContextElement(HeadersHolder.headers.get())
 
     data class QueryResponse(
         val edges: List<Edge>? = null

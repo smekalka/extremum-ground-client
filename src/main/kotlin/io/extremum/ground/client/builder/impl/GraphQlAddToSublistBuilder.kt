@@ -1,11 +1,12 @@
 package io.extremum.ground.client.builder.impl
 
+import io.extremum.ground.client.builder.constant.BuilderConstants.ID_FIELD_NAME
 import io.extremum.ground.client.builder.core.GraphQlUpdateSublistBuilder
 import io.extremum.ground.client.builder.util.ValueGraphQlFormatter.format
-import io.extremum.model.tools.mapper.MapperUtils.convertToMap
-import io.extremum.sharedmodels.basic.BasicModel
 import io.extremum.model.tools.mapper.GraphQlListUtils.LIST_ELEMENT_FIELD_NAME
 import io.extremum.model.tools.mapper.GraphQlListUtils.LIST_FIELD_NAME
+import io.extremum.model.tools.mapper.MapperUtils.convertToMap
+import io.extremum.sharedmodels.basic.BasicModel
 import io.smallrye.graphql.client.core.Argument.arg
 import io.smallrye.graphql.client.core.Document
 import io.smallrye.graphql.client.core.Document.document
@@ -39,7 +40,7 @@ internal constructor(id: Any, entitiesToAdd: List<T>, inputFields: List<String> 
                 MUTATION,
                 field(
                     rootName,
-                    arg("id", StringBuilder(id.format())),
+                    arg(ID_FIELD_NAME, StringBuilder(id.format())),
                 ),
                 field(
                     "",

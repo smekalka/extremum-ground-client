@@ -177,7 +177,7 @@ mutation {
             """
 mutation {
     account (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             value: \"$value\"
         }
@@ -208,7 +208,7 @@ mutation {
             """
 mutation {
     account (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             value: null
         }
@@ -235,7 +235,7 @@ mutation {
             """
 mutation {
     change (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             ordinal: $ordinal,
             compensation: {
@@ -270,7 +270,7 @@ mutation {
             """
 mutation {
     account (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             datatype: NUMBER
         }
@@ -297,7 +297,7 @@ mutation {
             """
 mutation {
     event (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             url: \"event url\"
         }
@@ -352,11 +352,10 @@ mutation {
             name: \"$name\"
         }
     ) {
-        id
         iri
         name
-        uuid1
         uuid
+        uuid1
     }
 }
         """
@@ -379,11 +378,11 @@ mutation {
         val name: String,
         val child: Model? = null,
         private var iri: String? = null,
-        private var id: UUID? = null,
+        private var uuid: UUID? = null,
     ) : BasicModel<UUID> {
 
         override fun getId(): UUID? {
-            return id
+            return uuid
         }
 
         override fun getIri(): String? {
@@ -402,8 +401,8 @@ mutation {
             this.iri = iri
         }
 
-        override fun setId(id: UUID?) {
-            this.id = id
+        override fun setId(uuid: UUID?) {
+            this.uuid = uuid
         }
 
         override fun getUuid(): Descriptor? {
@@ -419,7 +418,7 @@ mutation {
             """
 mutation {
     event (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             url: \"new url\",
             size: null,
@@ -474,7 +473,7 @@ mutation {
             """
 mutation {
     event (
-        id: \"$uuid\",
+        uuid: \"$uuid\",
         input: {
             url: \"new url\"
         }

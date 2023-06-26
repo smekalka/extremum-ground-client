@@ -20,7 +20,7 @@ class GraphQlAddToSublistBuilderTest {
             """
 mutation {
     account (
-        id: \"$uuid\"
+        uuid: \"$uuid\"
     ) {
         addChanges (
             input: [

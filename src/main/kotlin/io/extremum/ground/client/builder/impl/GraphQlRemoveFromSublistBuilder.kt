@@ -27,7 +27,7 @@ internal constructor(id: Any, private val idToRemove: Any) : GraphQlUpdateSublis
                 MUTATION,
                 field(
                     rootName,
-                    arg("id", StringBuilder(id.format())),
+                    arg(ID_FIELD_NAME, StringBuilder(id.format())),
                 ),
                 field(
                     "",

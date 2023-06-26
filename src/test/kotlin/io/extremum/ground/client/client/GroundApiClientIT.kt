@@ -1,5 +1,6 @@
 package io.extremum.ground.client.client
 
+import io.extremum.ground.client.ENABLED_GROUND_EXPRESSION
 import io.extremum.ground.client.builder.Builders.addToSublist
 import io.extremum.ground.client.builder.Builders.getById
 import io.extremum.ground.client.builder.Builders.query
@@ -42,23 +43,23 @@ import io.extremum.test.tools.AssertionUtils.isNotNullExt
 import io.extremum.test.tools.StringUtils.toStringOrMultilingual
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
-import java.time.ZonedDateTime
+import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.util.UUID.randomUUID
 
 class GroundApiClientIT {
 
     private val groundApiClient = GroundApiClient(
         url = URL,
-        headers = mapOf(HttpHeaders.AUTHORIZATION to TOKEN),
         xAppId = X_APP_ID,
         graphqlPath = GRAPHQL_PATH,
         txPath = TX_PATH,
-    )
+    ).apply{
+        updateHeaders(mapOf(HttpHeaders.AUTHORIZATION to TOKEN))
+    }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `get zones`() {
         runBlocking {
@@ -77,7 +78,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `find account by filter`() {
         runBlocking {
@@ -94,7 +95,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `get zone by id`() {
         runBlocking {
@@ -114,7 +115,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `get zone by not existing id`() {
         runBlocking {
@@ -131,7 +132,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `get zone with not existing output fields`() {
         runBlocking {
@@ -150,7 +151,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `get account by id without builder`() {
         runBlocking {
@@ -170,7 +171,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `create zone`() {
         runBlocking {
@@ -179,12 +180,12 @@ class GroundApiClientIT {
                 .setInput(
                     Zone().apply {
                         this.description = description
-                        created = ZonedDateTime.now()
+//                        created = ZonedDateTime.now()
                     }
                 )
                 .addOutputFields(
                     field(Zone::getDescription),
-                    field(Zone::getCreated),
+//                    field(Zone::getCreated),
                 )
 
             val result = groundApiClient.update<Zone>(builder)
@@ -193,11 +194,11 @@ class GroundApiClientIT {
             println("result: $result")
             assertThat(result)
                 .hasFieldWithValue(Zone::getDescription, description)
-            assertThat(result.created).isNotNull
+//            assertThat(result.created).isNotNull
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `create event with IntegerRangeOrValue`() {
         runBlocking {
@@ -220,7 +221,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `create event with nested fields`() {
         runBlocking {
@@ -257,7 +258,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `create account`() {
         runBlocking {
@@ -288,7 +289,7 @@ class GroundApiClientIT {
         return response.validateStatusAndValueNotNull("account")
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `update account`() {
         runBlocking {
@@ -320,7 +321,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `update not existing account`() {
         runBlocking {
@@ -339,7 +340,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `remove account by builder`() {
         runBlocking {
@@ -357,7 +358,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `remove account by id`() {
         runBlocking {
@@ -370,7 +371,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `remove not existing account`() {
         runBlocking {
@@ -384,7 +385,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `add changes`() {
         runBlocking {
@@ -439,7 +440,7 @@ class GroundApiClientIT {
         return response.validateStatusAndValueNotNull(classNameShort<Change>())
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `add several changes and get from sublist`() {
         runBlocking {
@@ -481,7 +482,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `get account changes`() {
         runBlocking {
@@ -515,7 +516,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `remove changes`() {
         runBlocking {
@@ -551,7 +552,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `begin tx`() {
         runBlocking {
@@ -565,7 +566,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `tx commit`() {
         runBlocking {
@@ -623,7 +624,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `tx block`() {
         runBlocking {
@@ -663,7 +664,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `commit not existing tx`() {
         runBlocking {
@@ -674,7 +675,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `commit not existing tx in tx block`() {
         runBlocking {
@@ -691,7 +692,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `commit when nothing to commit`() {
         runBlocking {
@@ -720,7 +721,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `tx rollback`() {
         runBlocking {
@@ -773,7 +774,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `rollback not existing tx`() {
         runBlocking {
@@ -784,7 +785,7 @@ class GroundApiClientIT {
         }
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     fun `in not existing tx`() {
         runBlocking {

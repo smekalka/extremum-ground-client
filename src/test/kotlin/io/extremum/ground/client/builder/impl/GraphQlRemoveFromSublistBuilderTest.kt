@@ -22,7 +22,7 @@ class GraphQlRemoveFromSublistBuilderTest {
             """
 mutation {
     account (
-        id: \"$uuidId\"
+        uuid: \"$uuidId\"
     ) {
         removeChanges (
             input: {

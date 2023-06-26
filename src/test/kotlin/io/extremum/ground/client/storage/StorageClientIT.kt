@@ -1,17 +1,18 @@
 package io.extremum.ground.client.storage
 
-import io.extremum.ground.client.storage.requestbody.GetPresignedUrlBody.Access.READ
+import io.extremum.ground.client.ENABLED_STORAGE_EXPRESSION
 import io.extremum.ground.client.storage.StorageProperties.PATH
-import io.extremum.ground.client.storage.StorageProperties.URI
 import io.extremum.ground.client.storage.StorageProperties.TOKEN
+import io.extremum.ground.client.storage.StorageProperties.URI
 import io.extremum.ground.client.storage.StorageProperties.X_APP_ID
 import io.extremum.ground.client.storage.requestbody.GetPresignedUrlBody
+import io.extremum.ground.client.storage.requestbody.GetPresignedUrlBody.Access.READ
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Test
-import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.nio.charset.Charset
 
 class StorageClientIT {
@@ -32,7 +33,7 @@ class StorageClientIT {
         }
     }
 
-@Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getObjects() {
         runBlocking {
@@ -52,7 +53,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getObject() {
         runBlocking {
@@ -72,7 +73,7 @@ class StorageClientIT {
         )
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun `getObject by not existing key`() {
         runBlocking {
@@ -84,7 +85,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun postObject() {
         runBlocking {
@@ -92,7 +93,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun deleteObject() {
         runBlocking {
@@ -107,14 +108,14 @@ class StorageClientIT {
                 key = KEY,
             )
             getObjectResult = client.getObject(
-                    key = KEY,
+                key = KEY,
             )
             println(getObjectResult?.toString(Charset.defaultCharset()))
             assertThat(getObjectResult).isNull()
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun startMultipartUpload() {
         runBlocking {
@@ -127,6 +128,7 @@ class StorageClientIT {
         }
     }
 
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun `startMultipartUpload by not existing key`() {
         runBlocking {
@@ -138,7 +140,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun `getStatusMultipartUpload without parts`() {
         runBlocking {
@@ -157,7 +159,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getStatusMultipartUpload() {
         runBlocking {
@@ -172,7 +174,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getMultipartUploadsInProgress() {
         runBlocking {
@@ -192,7 +194,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun completeMultipartUpload() {
         runBlocking {
@@ -204,7 +206,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun abortMultipartUpload() {
         runBlocking {
@@ -216,7 +218,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun uploadPart() {
         runBlocking {
@@ -243,7 +245,7 @@ class StorageClientIT {
         return Pair(upload, result)
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getObjectMeta() {
         runBlocking {
@@ -256,7 +258,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getPresignedUrl() {
         runBlocking {
@@ -274,7 +276,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun createPostFormForUpload() {
         runBlocking {
@@ -285,7 +287,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun listJobs() {
         runBlocking {
@@ -294,7 +296,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun createJob() {
         runBlocking {
@@ -303,7 +305,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun getJobMetaData() {
         runBlocking {
@@ -314,7 +316,7 @@ class StorageClientIT {
         }
     }
 
-    @Disabled("launched storage service is needed")
+    @EnabledIf(expression = ENABLED_STORAGE_EXPRESSION)
     @Test
     fun deleteJob() {
         runBlocking {

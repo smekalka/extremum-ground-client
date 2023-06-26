@@ -49,12 +49,12 @@ class ApiQueryExecutorTest {
     fun beforeEach() {
         apiQueryExecutor = ApiQueryExecutor(
             url = url,
-            headers = mapOf("auth" to authToken),
             xAppId = X_APP_ID,
             graphqlPath = GRAPHQL_PATH,
             txPath = TX_PATH,
             webClient = webClientMock
         )
+        HeadersHolder.headers.set(mapOf("auth" to authToken))
     }
 
     @Test

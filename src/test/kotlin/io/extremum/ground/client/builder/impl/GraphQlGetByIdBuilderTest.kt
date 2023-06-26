@@ -20,7 +20,7 @@ class GraphQlGetByIdBuilderTest {
             """
 query {
     zone (
-         id: $id
+         uuid: $id
     ) {
         uuid
     }
@@ -41,7 +41,7 @@ query {
             """
 query {
     account (
-         id: $id
+         uuid: $id
     ) {
         changes (
             paging: {

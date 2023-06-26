@@ -30,7 +30,6 @@ import javax.json.JsonString
 
 class ApiQueryExecutor internal constructor(
     url: String,
-    private var headers: Map<String, String>,
     private val xAppId: String,
     val graphqlPath: String,
     private val txPath: String,
@@ -38,10 +37,6 @@ class ApiQueryExecutor internal constructor(
 ) {
 
     val logger: Logger = Logger.getLogger(this::class.java.name)
-
-    fun updateHeaders(headers: Map<String, String>) {
-        this.headers = headers
-    }
 
     /**
      * Запрос по сущности [T] с ожидаемым ответом [R]
@@ -134,7 +129,7 @@ class ApiQueryExecutor internal constructor(
     fun <T : RequestHeadersSpec<T>> RequestHeadersSpec<T>.addHeaders(): RequestHeadersSpec<T> =
         apply {
             this.header(X_APP_ID_HEADER, xAppId)
-            headers.forEach { (name, value) ->
+            HeadersHolder.headers.get()?.forEach { (name, value) ->
                 this.header(name, value)
             }
         }

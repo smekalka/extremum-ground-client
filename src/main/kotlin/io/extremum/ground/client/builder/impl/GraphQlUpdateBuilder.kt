@@ -123,7 +123,7 @@ internal constructor(val id: Any? = null) : GraphQlBuilder() {
             .filter { (key, value) -> key in inputFields || value.hasData() }
         return field(
             rootName,
-            arg("id", StringBuilder(id.format())),
+            arg(ID_FIELD_NAME, StringBuilder(id.format())),
             arg("input", StringBuilder(finalInput.format(filterEmpty = false)))
         )
     }

@@ -15,7 +15,7 @@ class GraphQlRemoveBuilderTest {
             """
 mutation {
     delete (
-         id: $id
+         uuid: $id
     )
 }
         """

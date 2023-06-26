@@ -8,7 +8,7 @@ plugins {
     signing
 }
 
-val artifactVersion = "3.2.0-rc.1"
+val artifactVersion = "3.2.0-rc.2"
 val artifact = "ground-client"
 val extremumGroup = "io.extremum"
 val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -51,6 +51,7 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
+    testImplementation("org.springframework:spring-test:6.0.10")
 
     implementation("org.apache.commons:commons-text:1.3")
 

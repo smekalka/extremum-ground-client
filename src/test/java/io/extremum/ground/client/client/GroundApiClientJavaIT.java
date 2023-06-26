@@ -24,14 +24,16 @@ import io.extremum.sharedmodels.basic.StringOrObject;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.tools.AssertionUtils;
 import org.apache.http.HttpHeaders;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static io.extremum.ground.client.EnabledConfigKt.ENABLED_GROUND_EXPRESSION;
 import static io.extremum.ground.client.client.GroundProperties.GRAPHQL_PATH;
 import static io.extremum.ground.client.client.GroundProperties.TOKEN;
 import static io.extremum.ground.client.client.GroundProperties.TX_PATH;
@@ -46,18 +48,22 @@ public class GroundApiClientJavaIT {
     GroundApiClient groundApiClient;
 
     public GroundApiClientJavaIT() {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaders.AUTHORIZATION, TOKEN);
         groundApiClient = new GroundApiClient(
                 URL,
-                headers,
                 X_APP_ID,
                 GRAPHQL_PATH,
                 TX_PATH
         );
     }
 
-    @Disabled("launched ground application is needed")
+    @BeforeEach
+    void before() {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaders.AUTHORIZATION, TOKEN);
+        groundApiClient.updateHeaders(headers);
+    }
+
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void getZones() throws ExecutionException, InterruptedException {
         groundApiClient.createEmpty(Zone.class, null).get();
@@ -74,7 +80,7 @@ public class GroundApiClientJavaIT {
         assertThat(result).isNotEmpty();
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void findAccountByFilter() throws ExecutionException, InterruptedException {
         String searchingValue = "searching";
@@ -89,7 +95,7 @@ public class GroundApiClientJavaIT {
         assertThat(result).isNotEmpty();
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void getZoneById() throws ExecutionException, InterruptedException {
         Zone zone = groundApiClient.createEmpty(Zone.class, null).get();
@@ -106,7 +112,7 @@ public class GroundApiClientJavaIT {
         AssertionUtils.INSTANCE.assertEqualsDescriptors(id, result.getUuid());
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void getZoneByNotExistingId() throws ExecutionException, InterruptedException {
         GraphQlGetByIdBuilder builder = Builders.INSTANCE.getById(randomUUID().toString());
@@ -118,7 +124,7 @@ public class GroundApiClientJavaIT {
         assertThat(result.getValue()).isNull();
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void getZoneByIdWithoutBuilder() throws ExecutionException, InterruptedException {
         Zone zone = groundApiClient.createEmpty(Zone.class, null).get();
@@ -130,7 +136,7 @@ public class GroundApiClientJavaIT {
         AssertionUtils.INSTANCE.assertEqualsDescriptors(id, result.getUuid());
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void createEventWithNestedFields() throws ExecutionException, InterruptedException {
         Event event = new Event();
@@ -167,7 +173,7 @@ public class GroundApiClientJavaIT {
         assertThat(result.getSize()).isEqualTo(event.getSize());
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void updateAccount() throws ExecutionException, InterruptedException {
         Account account = groundApiClient.createEmpty(Account.class, null).get();
@@ -188,7 +194,7 @@ public class GroundApiClientJavaIT {
         assertThat(result.getValue()).isEqualTo(updatedValue);
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void addChanges() throws ExecutionException, InterruptedException {
         Account createdAccount = createAccount();
@@ -238,7 +244,7 @@ public class GroundApiClientJavaIT {
         return groundApiClient.updateSublist(Account.class, Change.class, builder).get().validateStatusAndValueNotNull("change");
     }
 
-    @Disabled("launched ground application is needed")
+    @EnabledIf(expression = ENABLED_GROUND_EXPRESSION)
     @Test
     void removeChanges() throws ExecutionException, InterruptedException {
         Account createdAccount = createAccount();
