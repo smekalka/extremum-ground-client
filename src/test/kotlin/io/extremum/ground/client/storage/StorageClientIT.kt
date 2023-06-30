@@ -330,6 +330,6 @@ class StorageClientIT {
     private companion object {
         const val KEY = "documents/123"
         const val JOB = "7"
-        val OBJ = "мы текст, с нами буквы".toByteArray()
+        val OBJ = "Мы — буквы, с нами текст".toByteArray()
     }
 }

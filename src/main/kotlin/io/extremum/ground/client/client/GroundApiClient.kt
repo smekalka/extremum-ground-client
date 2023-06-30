@@ -247,6 +247,14 @@ class GroundApiClient(
     }
 
     /**
+     * Аналог [remove].
+     */
+    fun removeF(builder: GraphQlRemoveBuilder): CompletableFuture<Response<Boolean>> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            remove(builder)
+        }
+
+    /**
      * Упрощенное удаление сущности c id [id].
      * Возвращает true при успешном удалении, false - сущность с заданным id не найдена для удаления.
      * Если необходимо задать какие-то настройки при создании, нужно использовать [remove] с заполненным [GraphQlRemoveBuilder].
@@ -257,6 +265,14 @@ class GroundApiClient(
         val response = remove(builder)
         return response.validateStatusAndValueNotNull()
     }
+
+    /**
+     * Аналог [remove].
+     */
+    fun removeF(id: Any,inTxId: TxId? = null): CompletableFuture<Boolean> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            remove(id, inTxId)
+        }
 
     /**
      * Добавление в сущность [T] значения в дочерний список (удаление из сущности [T] значения из дочернего списка).
@@ -301,9 +317,10 @@ class GroundApiClient(
     /**
      * Аналог [beginTx].
      */
-    fun beginTxF(): CompletableFuture<Response<Boolean>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
-        beginTx()
-    }
+    fun beginTxF(): CompletableFuture<Response<Boolean>> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            beginTx()
+        }
 
     /**
      * Commit (фиксация) транзакции txId.
@@ -332,9 +349,10 @@ class GroundApiClient(
     /**
      * Аналог [rollback].
      */
-    fun rollbackF(txId: TxId): CompletableFuture<Response<Boolean>> = CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
-        rollback(txId)
-    }
+    fun rollbackF(txId: TxId): CompletableFuture<Response<Boolean>> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            rollback(txId)
+        }
 
     /**
      * Выполнение блока действий [block] в транзакции.

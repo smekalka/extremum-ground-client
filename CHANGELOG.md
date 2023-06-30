@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix dependencies
 - Support disabling autoconfiguration
 - Rename and refactor properties
+- Add HeadersHolder for ground client
+- Add storage client
 
 ## [3.0.0] - 2023-03-24
 

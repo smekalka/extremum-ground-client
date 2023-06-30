@@ -8,13 +8,13 @@ plugins {
     signing
 }
 
-val artifactVersion = "3.2.0-rc.2"
+val artifactVersion = "3.2.0-rc.3"
 val artifact = "ground-client"
 val extremumGroup = "io.extremum"
 val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val extremumToolsVersion = "3.2.0-rc.2"
+val extremumToolsVersion = "3.2.0-rc.3"
 val extremumSharedModelsVersion = "3.2.0-rc.1"
 
 group = extremumGroup

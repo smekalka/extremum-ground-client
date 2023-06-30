@@ -1,5 +1,6 @@
 package io.extremum.ground.client.storage
 
+import io.extremum.ground.client.client.HeadersHolder
 import io.extremum.ground.client.storage.Paths.JOB
 import io.extremum.ground.client.storage.Paths.JOBS
 import io.extremum.ground.client.storage.Paths.OBJECT
@@ -20,12 +21,17 @@ import io.extremum.sharedmodels.dto.Pagination
 import io.extremum.sharedmodels.dto.PartStatusMultipartUpload
 import io.extremum.sharedmodels.dto.Response
 import io.extremum.sharedmodels.dto.UploadWithMetadata
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.future.future
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitExchange
+import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
 
 @Component
@@ -37,15 +43,18 @@ class StorageClient(
     @Value("\${extremum.ground.client.xAppId}")
     private val xAppId: String,
     @Value("#{\${extremum.ground.client.storage.headers:{}}}")
-    private val headers: Map<String, String> = mapOf(),
+    headers: Map<String, String> = mapOf(),
     private val webClient: WebClient = WebClient.create(uri + path),
 ) {
-    private val requestExecutor = RequestExecutor(xAppId = xAppId, headers = headers)
 
     private val logger: Logger = Logger.getLogger(this::class.java.name)
 
-    fun updateHeaders(headers: Map<String, String>) {
-        requestExecutor.updateHeaders(headers)
+    init {
+        updateHeaders(headers)
+    }
+
+    final fun updateHeaders(headers: Map<String, String>) {
+        HeadersHolder.headers.set(headers)
     }
 
     suspend fun getObjects(
@@ -58,21 +67,17 @@ class StorageClient(
             "offset" to offset,
             "prefix" to prefix,
         )
-        return requestExecutor.requestWithPagination(
+        return RequestExecutor.requestWithPagination(
             webClient.get()
                 .uri(uri)
+                .addHeaders()
         )
     }
 
     suspend fun getObject(key: String): ByteArray? {
         val (responseBody, statusCode) = webClient.get()
             .uri(OBJECT.fillArgs(key))
-            .apply {
-                this.header(RequestExecutor.X_APP_ID_HEADER, xAppId)
-                headers.forEach { (name, value) ->
-                    this.header(name, value)
-                }
-            }
+            .addHeaders()
             .awaitExchange { response ->
                 val statusCode = response.statusCode()
                 logger.info("Response code: $statusCode")
@@ -99,17 +104,19 @@ class StorageClient(
     }
 
     suspend fun postObject(key: String, obj: ByteArray) {
-        requestExecutor.requestRaw(
+        RequestExecutor.requestRaw(
             webClient.post()
                 .uri(OBJECT.fillArgs(key))
                 .bodyValue(obj)
+                .addHeaders()
         )
     }
 
     suspend fun deleteObject(key: String) {
-        requestExecutor.requestRaw(
+        RequestExecutor.requestRaw(
             webClient.delete()
                 .uri(OBJECT.fillArgs(key))
+                .addHeaders()
         )
     }
 
@@ -117,15 +124,17 @@ class StorageClient(
      * Если объекта с таким [key] не существует, результат будет null.
      */
     suspend fun startMultipartUpload(key: String): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.post()
                 .uri(OBJECT_MULTIPART.fillArgs(key))
+                .addHeaders()
         )
 
     suspend fun getStatusMultipartUpload(key: String, upload: String): List<PartStatusMultipartUpload> =
-        requestExecutor.requestList(
+        RequestExecutor.requestList(
             webClient.get()
                 .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
+                .addHeaders()
         )
 
     suspend fun getMultipartUploadsInProgress(
@@ -134,73 +143,247 @@ class StorageClient(
         offset: Int,
         prefix: String = ""
     ): Pair<List<UploadWithMetadata>, Pagination> =
-        requestExecutor.requestWithPagination(
+        RequestExecutor.requestWithPagination(
             webClient.get()
                 .uri(OBJECT_MULTIPART.fillArgs(key))
+                .addHeaders()
         )
 
     suspend fun completeMultipartUpload(key: String, upload: String) {
-        requestExecutor.requestRaw(
+        RequestExecutor.requestRaw(
             webClient.put()
                 .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
+                .addHeaders()
         )
     }
 
     suspend fun abortMultipartUpload(key: String, upload: String) {
-        requestExecutor.requestRaw(
+        RequestExecutor.requestRaw(
             webClient.delete()
                 .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload))
+                .addHeaders()
         )
     }
 
     suspend fun uploadPart(key: String, upload: String, part: Int, obj: ByteArray): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.post()
                 .uri(OBJECT_MULTIPART_UPLOAD.fillArgs(key, upload) + "?part=" + part)
                 .bodyValue(obj)
+                .addHeaders()
         )
 
     suspend fun getObjectMeta(key: String): ObjectMetadata? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.get()
                 .uri(OBJECT_META.fillArgs(key))
+                .addHeaders()
         )
 
     suspend fun getPresignedUrl(key: String, body: GetPresignedUrlBody): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.post()
                 .uri(OBJECT_PRESIGN_URL.fillArgs(key))
                 .bodyValue(body)
+                .addHeaders()
         )
 
     suspend fun createPostFormForUpload(key: String): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.post()
                 .uri(OBJECT_UPLOAD_FORM.fillArgs(key))
+                .addHeaders()
         )
 
-
     suspend fun listJobs(): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.get()
                 .uri(JOBS)
+                .addHeaders()
         )
 
     suspend fun createJob(): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.post()
                 .uri(JOBS)
+                .addHeaders()
         )
 
     suspend fun getJobMetaData(job: String): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.get()
                 .uri(JOB.fillArgs(job))
+                .addHeaders()
         )
 
     suspend fun deleteJob(job: String): String? =
-        requestExecutor.request(
+        RequestExecutor.request(
             webClient.delete()
                 .uri(JOB.fillArgs(job))
+                .addHeaders()
         )
+
+    /**
+     * Аналог [getObjects].
+     */
+    fun getObjectsF(
+        limit: Int? = null,
+        offset: Int? = null,
+        prefix: String? = null
+    ): CompletableFuture<Pair<List<ObjectMetadata>, Pagination>> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getObjects(limit, offset, prefix)
+        }
+
+    /**
+     * Аналог [getObject].
+     */
+    fun getObjectF(key: String): CompletableFuture<ByteArray?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getObject(key)
+        }
+
+    /**
+     * Аналог [postObject].
+     */
+    fun postObjectF(key: String, obj: ByteArray): CompletableFuture<Unit> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            postObject(key, obj)
+        }
+
+    /**
+     * Аналог [deleteObject].
+     */
+    fun deleteObjectF(key: String): CompletableFuture<Unit> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            deleteObject(key)
+        }
+
+    /**
+     * Аналог [startMultipartUpload].
+     */
+    fun startMultipartUploadF(key: String): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            startMultipartUpload(key)
+        }
+
+    /**
+     * Аналог [getStatusMultipartUpload].
+     */
+    fun getStatusMultipartUploadF(key: String, upload: String): CompletableFuture<List<PartStatusMultipartUpload>> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getStatusMultipartUpload(key, upload)
+        }
+
+    /**
+     * Аналог [getMultipartUploadsInProgress].
+     */
+    fun getMultipartUploadsInProgressF(
+        key: String,
+        limit: Int,
+        offset: Int,
+        prefix: String = ""
+    ): CompletableFuture<Pair<List<UploadWithMetadata>, Pagination>> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getMultipartUploadsInProgress(
+                key,
+                limit,
+                offset,
+                prefix,
+            )
+        }
+
+    /**
+     * Аналог [completeMultipartUpload].
+     */
+    fun completeMultipartUploadF(key: String, upload: String): CompletableFuture<Unit> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            completeMultipartUpload(key, upload)
+        }
+
+    /**
+     * Аналог [abortMultipartUpload].
+     */
+    fun abortMultipartUploadF(key: String, upload: String): CompletableFuture<Unit> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            abortMultipartUpload(key, upload)
+        }
+
+    /**
+     * Аналог [uploadPart].
+     */
+    fun uploadPartF(key: String, upload: String, part: Int, obj: ByteArray): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            uploadPart(key, upload, part, obj)
+        }
+
+    /**
+     * Аналог [getObjectMeta].
+     */
+    fun getObjectMetaF(key: String): CompletableFuture<ObjectMetadata?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getObjectMeta(key)
+        }
+
+    /**
+     * Аналог [getPresignedUrl].
+     */
+    fun getPresignedUrlF(key: String, body: GetPresignedUrlBody): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getPresignedUrl(key, body)
+        }
+
+    /**
+     * Аналог [createPostFormForUpload].
+     */
+    fun createPostFormForUploadF(key: String): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            createPostFormForUpload(key)
+        }
+
+    /**
+     * Аналог [listJobs].
+     */
+    fun listJobsF(): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            listJobs()
+        }
+
+    /**
+     * Аналог [createJob].
+     */
+    fun createJobF(): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            createJob()
+        }
+
+    /**
+     * Аналог [getJobMetaData].
+     */
+    fun getJobMetaDataF(job: String): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            getJobMetaData(job)
+        }
+
+    /**
+     * Аналог [deleteJob].
+     */
+    fun deleteJobF(job: String): CompletableFuture<String?> =
+        CoroutineScope(Dispatchers.Default + headersAsContextElement()).future {
+            deleteJob(job)
+        }
+
+    private fun <T : WebClient.RequestHeadersSpec<T>> WebClient.RequestHeadersSpec<T>.addHeaders(): WebClient.RequestHeadersSpec<T> =
+        apply {
+            this.header(X_APP_ID_HEADER, xAppId)
+            HeadersHolder.headers.get()?.forEach { (name, value) ->
+                this.header(name, value)
+            }
+        }
+
+    companion object {
+        const val X_APP_ID_HEADER = "x-app-id"
+
+        private fun headersAsContextElement() = HeadersHolder.headers.asContextElement(HeadersHolder.headers.get())
+    }
 }
