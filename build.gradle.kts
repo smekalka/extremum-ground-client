@@ -8,18 +8,18 @@ plugins {
     signing
 }
 
-val artifactVersion = "3.2.0-rc.3"
+val artifactVersion = "3.2.0-rc.4"
 val artifact = "ground-client"
 val extremumGroup = "io.extremum"
 val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val extremumToolsVersion = "3.2.0-rc.3"
+val extremumToolsVersion = "3.2.0-rc.4"
 val extremumSharedModelsVersion = "3.2.0-rc.1"
 
 group = extremumGroup
 version = artifactVersion
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
@@ -40,8 +40,9 @@ dependencies {
     implementation("io.extremum:extremum-model-tools:$extremumToolsVersion")
     testImplementation("io.extremum:extremum-test-tools:$extremumToolsVersion")
 
-    implementation("org.springframework.boot:spring-boot-autoconfigure:3.0.6")
-    implementation("org.springframework:spring-webflux:6.0.8")
+    implementation("org.springframework.boot:spring-boot-autoconfigure:2.7.13")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:2.7.13")
+    implementation("org.springframework:spring-webflux:5.3.28")
     implementation("de.cronn:reflection-util:2.14.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.20")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20")
@@ -51,11 +52,11 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
-    testImplementation("org.springframework:spring-test:6.0.10")
+    testImplementation("org.springframework:spring-test:5.3.28")
 
     implementation("org.apache.commons:commons-text:1.3")
 
-    implementation("io.smallrye:smallrye-graphql-client:1.7.1")
+    implementation("io.smallrye:smallrye-graphql-client:1.4.5")
     implementation("io.vertx:vertx-core:3.5.1")
 
     testImplementation("io.rest-assured:rest-assured:4.5.1") {
@@ -75,7 +76,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
 }
 

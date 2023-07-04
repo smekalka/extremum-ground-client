@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static io.extremum.ground.client.EnabledConfigKt.ENABLED_GROUND_EXPRESSION;
 import static io.extremum.ground.client.client.GroundProperties.GRAPHQL_PATH;
@@ -256,7 +257,7 @@ public class GroundApiClientJavaIT {
         );
 
         List<Change> addChangesResult = addChange(id, function, parameters);
-        List<Change> addedChanges = addChangesResult.stream().filter(change -> function.equals(change.getCompensation().getFunction())).toList();
+        List<Change> addedChanges = addChangesResult.stream().filter(change -> function.equals(change.getCompensation().getFunction())).collect(Collectors.toList());
         assertThat(addedChanges).isNotEmpty();
         Change addedChange = addedChanges.get(0);
 
@@ -266,7 +267,7 @@ public class GroundApiClientJavaIT {
         List<Change> result = groundApiClient.updateSublist(Account.class, Change.class, builder).get().validateStatusAndValueNotNull("account");
 
         System.out.println(result);
-        List<Change> removed = result.stream().filter(change -> function.equals(change.getCompensation().getFunction())).toList();
+        List<Change> removed = result.stream().filter(change -> function.equals(change.getCompensation().getFunction())).collect(Collectors.toList());
         assertThat(removed).isEmpty();
     }
 }

@@ -9,7 +9,6 @@ import io.extremum.ground.client.client.Response.Status.OK
 import io.extremum.ground.client.client.Response.Status.OTHER_ERROR
 import io.extremum.ground.client.client.Response.Status.UNAUTHORIZED
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 
 data class Response<T>(
     /**
@@ -84,7 +83,7 @@ data class Response<T>(
     }
 
     companion object {
-        fun HttpStatusCode.toStatus(): Status = when (this) {
+        fun HttpStatus.toStatus(): Status = when (this) {
             HttpStatus.OK -> OK
             HttpStatus.INTERNAL_SERVER_ERROR -> INTERNAL_SERVER_ERROR
             HttpStatus.BAD_REQUEST -> BAD_REQUEST

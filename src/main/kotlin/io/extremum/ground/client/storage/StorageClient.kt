@@ -57,6 +57,9 @@ class StorageClient(
         HeadersHolder.headers.set(headers)
     }
 
+    /**
+     * Получение объектов с ограничением количества [limit], начиная с позиции [offset], с фильтрацией по префиксу [prefix].
+     */
     suspend fun getObjects(
         limit: Int? = null,
         offset: Int? = null,
@@ -74,6 +77,9 @@ class StorageClient(
         )
     }
 
+    /**
+     * Получение объекта по ключу [key].
+     */
     suspend fun getObject(key: String): ByteArray? {
         val (responseBody, statusCode) = webClient.get()
             .uri(OBJECT.fillArgs(key))
@@ -90,19 +96,22 @@ class StorageClient(
                         if (responseBody.alerts.isNotEmpty()) {
                             logger.warning("Alerts from response body: ${responseBody.alerts}")
                             throw ExtremumApiException(
-                                code = statusCode,
+                                status = statusCode,
                                 message = responseBody.alerts.joinToString { it.code + ": " + it.message }
                             )
                         }
                         throw ExtremumApiException(code = responseBody.code, message = "request failed.")
                     } catch (e: Exception) {
-                        throw ExtremumApiException(code = statusCode, message = "request failed.")
+                        throw ExtremumApiException(status = statusCode, message = "request failed.")
                     }
                 }
             }
         return if (statusCode == HttpStatus.NOT_FOUND) null else responseBody
     }
 
+    /**
+     * Сохранение объекта [obj] по ключу [key].
+     */
     suspend fun postObject(key: String, obj: ByteArray) {
         RequestExecutor.requestRaw(
             webClient.post()
@@ -112,6 +121,9 @@ class StorageClient(
         )
     }
 
+    /**
+     * Удаление объекта с ключом [key].
+     */
     suspend fun deleteObject(key: String) {
         RequestExecutor.requestRaw(
             webClient.delete()
@@ -121,6 +133,8 @@ class StorageClient(
     }
 
     /**
+     * Начать составную загрузку.
+     * Возвращается id загрузки.
      * Если объекта с таким [key] не существует, результат будет null.
      */
     suspend fun startMultipartUpload(key: String): String? =
@@ -130,6 +144,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Получить статус составной загрузки [upload] объекта с ключом [key].
+     */
     suspend fun getStatusMultipartUpload(key: String, upload: String): List<PartStatusMultipartUpload> =
         RequestExecutor.requestList(
             webClient.get()
@@ -137,18 +154,31 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Получить активные составные загрузки объекта с ключом [key].
+     * Ограничить список количеством [limit], начать с [offset], отфильтровать по префиксу [prefix].
+     */
     suspend fun getMultipartUploadsInProgress(
         key: String,
-        limit: Int,
-        offset: Int,
-        prefix: String = ""
-    ): Pair<List<UploadWithMetadata>, Pagination> =
-        RequestExecutor.requestWithPagination(
+        limit: Int? = null,
+        offset: Int? = null,
+        prefix: String? = null
+    ): Pair<List<UploadWithMetadata>, Pagination> {
+        val uri = "${OBJECT_MULTIPART.fillArgs(key)}?" + buildApiParams(
+            "limit" to limit,
+            "offset" to offset,
+            "prefix" to prefix,
+        )
+        return RequestExecutor.requestWithPagination(
             webClient.get()
-                .uri(OBJECT_MULTIPART.fillArgs(key))
+                .uri(uri)
                 .addHeaders()
         )
+    }
 
+    /**
+     * Завершить составную загрузку [upload] объекта с ключом [key].
+     */
     suspend fun completeMultipartUpload(key: String, upload: String) {
         RequestExecutor.requestRaw(
             webClient.put()
@@ -157,6 +187,9 @@ class StorageClient(
         )
     }
 
+    /**
+     * Отменить составную загрузку [upload] объекта с ключом [key].
+     */
     suspend fun abortMultipartUpload(key: String, upload: String) {
         RequestExecutor.requestRaw(
             webClient.delete()
@@ -165,6 +198,9 @@ class StorageClient(
         )
     }
 
+    /**
+     * Загрузить составную часть [obj] с номером [part] в загрузке [upload] объекта с ключом [key].
+     */
     suspend fun uploadPart(key: String, upload: String, part: Int, obj: ByteArray): String? =
         RequestExecutor.request(
             webClient.post()
@@ -173,6 +209,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Получить информацию об объекте с ключом [key].
+     */
     suspend fun getObjectMeta(key: String): ObjectMetadata? =
         RequestExecutor.request(
             webClient.get()
@@ -180,6 +219,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Получить подписанную ссылку для объекта с ключом [key].
+     */
     suspend fun getPresignedUrl(key: String, body: GetPresignedUrlBody): String? =
         RequestExecutor.request(
             webClient.post()
@@ -195,6 +237,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Получить список операций.
+     */
     suspend fun listJobs(): String? =
         RequestExecutor.request(
             webClient.get()
@@ -202,6 +247,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Создать операцию.
+     */
     suspend fun createJob(): String? =
         RequestExecutor.request(
             webClient.post()
@@ -209,6 +257,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Получить информацию об операции [job].
+     */
     suspend fun getJobMetaData(job: String): String? =
         RequestExecutor.request(
             webClient.get()
@@ -216,6 +267,9 @@ class StorageClient(
                 .addHeaders()
         )
 
+    /**
+     * Удалить операцию [job].
+     */
     suspend fun deleteJob(job: String): String? =
         RequestExecutor.request(
             webClient.delete()
